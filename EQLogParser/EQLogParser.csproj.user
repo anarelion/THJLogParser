@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectView>ProjectFiles</ProjectView>
+    <PublishUrlHistory>C:\EQLogParser\|publish\</PublishUrlHistory>
+    <InstallUrlHistory />
+    <SupportUrlHistory />
+    <UpdateUrlHistory />
+    <BootstrapperUrlHistory />
+    <ErrorReportUrlHistory />
+    <FallbackCulture>en-US</FallbackCulture>
+    <VerifyUploadedFiles>false</VerifyUploadedFiles>
+  </PropertyGroup>
+  <PropertyGroup>
+    <EnableSecurityDebugging>false</EnableSecurityDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="src\ui\log\RandomViewer.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="src\ui\log\TauntStatsViewer.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="src\ui\log\RandomViewer.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="src\ui\log\TauntStatsViewer.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="src\ui\main\MessageWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+</Project>
