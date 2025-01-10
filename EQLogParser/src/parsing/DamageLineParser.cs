@@ -704,6 +704,21 @@ namespace EQLogParser
         defender = PlayerManager.Instance.ReplacePlayer(defender, defender);
         defender = TextFormatUtils.ToUpper(defender);
 
+        // Xan - fix for custom owner name
+        int iOwn    = attacker.IndexOf( "(Owner:" );
+        if( iOwn > -1 )
+        {
+            string  pet      = attacker.Substring( 0, iOwn -1 );
+            string  owner    = attacker.Substring( iOwn + 8, attacker.IndexOf( ')' ) - (iOwn +8));
+
+            var verifiedPet = PlayerManager.Instance.IsVerifiedPet( pet );
+            if( verifiedPet && PlayerManager.Instance.IsVerifiedPlayer( owner ) )
+            {
+                PlayerManager.Instance.AddPetToPlayer( pet, owner );
+            }
+            attacker    = pet;
+        }
+
         if (string.IsNullOrEmpty(attacker))
         {
           attacker = subType;

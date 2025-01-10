@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Mine\\Code\\THJ EQLogParser-master\\",
+  "WorkspaceRootPath": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|c:\\mine\\code\\thj eqlogparser-master\\eqlogparser\\src\\parsing\\damagelineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|c:\\mine\\code\\git\\eqlogparser-thj\\eqlogparser\\src\\parsing\\damagelineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|solutionrelative:eqlogparser\\src\\parsing\\damagelineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|c:\\mine\\code\\thj eqlogparser-master\\eqlogparser\\src\\parsing\\healinglineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|c:\\mine\\code\\git\\eqlogparser-thj\\eqlogparser\\src\\parsing\\healinglineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|solutionrelative:eqlogparser\\src\\parsing\\healinglineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -24,9 +24,9 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "HealingLineParser.cs",
-              "DocumentMoniker": "C:\\Mine\\Code\\THJ EQLogParser-master\\EQLogParser\\src\\parsing\\HealingLineParser.cs",
+              "DocumentMoniker": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\parsing\\HealingLineParser.cs",
               "RelativeDocumentMoniker": "EQLogParser\\src\\parsing\\HealingLineParser.cs",
-              "ToolTip": "C:\\Mine\\Code\\THJ EQLogParser-master\\EQLogParser\\src\\parsing\\HealingLineParser.cs",
+              "ToolTip": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\parsing\\HealingLineParser.cs",
               "RelativeToolTip": "EQLogParser\\src\\parsing\\HealingLineParser.cs",
               "ViewState": "AgIAAPUAAAAAAAAAAAAwwBYBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -36,11 +36,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "DamageLineParser.cs",
-              "DocumentMoniker": "C:\\Mine\\Code\\THJ EQLogParser-master\\EQLogParser\\src\\parsing\\DamageLineParser.cs",
+              "DocumentMoniker": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\parsing\\DamageLineParser.cs",
               "RelativeDocumentMoniker": "EQLogParser\\src\\parsing\\DamageLineParser.cs",
-              "ToolTip": "C:\\Mine\\Code\\THJ EQLogParser-master\\EQLogParser\\src\\parsing\\DamageLineParser.cs",
-              "RelativeToolTip": "EQLogParser\\src\\parsing\\DamageLineParser.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAB1AAAAAAAAAA==",
+              "ToolTip": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\parsing\\DamageLineParser.cs*",
+              "RelativeToolTip": "EQLogParser\\src\\parsing\\DamageLineParser.cs*",
+              "ViewState": "AgIAALcCAAAAAAAAAAAwwMcCAABgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-17T21:23:23.511Z",
               "EditorCaption": ""
