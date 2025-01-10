@@ -718,6 +718,17 @@ namespace EQLogParser
             }
             attacker    = pet;
         }
+        // Xan - specifically address Soandso's Celestial Hammer
+        int iCH    = attacker.IndexOf( "`s Celestial Hammer" );
+        if( iCH > -1 )
+        {
+            string  owner    = attacker.Substring( 0, iCH );
+
+            if( PlayerManager.Instance.IsVerifiedPlayer( owner ) )
+            {
+                PlayerManager.Instance.AddPetToPlayer( attacker, owner );
+            }
+        }
 
         if (string.IsNullOrEmpty(attacker))
         {
@@ -832,7 +843,10 @@ namespace EQLogParser
       if (part.Length >= (start + ++end) && part.Substring(start, 3) == "pet" ||
         part.Length >= (start + ++end) && part.Substring(start, 4) == "ward" && !(part.Length > (start + 5) && part[start + 5] != 'e') ||
         part.Length >= (start + ++end) && part.Substring(start, 5) == "Mount" ||
-        part.Length >= (start + ++end) && (part.Substring(start, 6) == "warder" || part.Substring(start, 6) == "Warder"))
+        part.Length >= (start + ++end) && (part.Substring(start, 6) == "warder" || part.Substring(start, 6) == "Warder") ||
+        // Xan - added for celestial hammer
+        part.Length >= (start + ++end) && part.Substring(start, 16) == "Celestial Hammer"
+      )
       {
         found = true;
         len = end;
