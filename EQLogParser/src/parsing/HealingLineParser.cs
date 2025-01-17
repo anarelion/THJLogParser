@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace EQLogParser
 {
   class HealingLineParser
   {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+    private static OldCritData LastCrit;
 
     private HealingLineParser()
     {
@@ -16,8 +19,25 @@ namespace EQLogParser
       string action = lineData.Action;
       try
       {
-        int index;
-        if (action.Length >= 23 && (index = action.LastIndexOf(" healed ", action.Length, StringComparison.Ordinal)) > -1)
+        // Xan - try to catch exceptional heals. Note the line comes before the heal and MUST have the same timestamp
+        /*
+            [Thu Jan 16 12:37:17 2025] You perform an exceptional heal! (1378)
+            [Thu Jan 16 12:37:17 2025] Morgoth has healed herself for 698 points of damage. (Lifedraw)
+         */
+        // Xan - Old (EQEMU) ex heal crit
+        if( action.Contains( " an exceptional heal!" ) )
+        {
+            string  healer  = action.Substring( 0, action.IndexOf( " perform" ) );
+            int     openP   = action.LastIndexOf( '(' );
+            int     amount  = Int32.Parse( action.Substring( openP +1, action.LastIndexOf( ')' ) - (openP +1) ) );
+            LastCrit = new OldCritData { Healer = PlayerManager.Instance.ReplacePlayer( healer, healer ), Amount = amount, LineData = lineData };
+        }
+
+        // Xan - reordered the search here and adding check for THJ rune msg
+        int index   = action.LastIndexOf(" healed ", action.Length, StringComparison.Ordinal);
+        if( index == -1 )
+            index   = action.LastIndexOf(" shielded ", action.Length, StringComparison.Ordinal);
+        if (action.Length >= 23 && index > -1)
         {
           HealRecord record = HandleHealed(action, index, lineData.BeginTime);
           if (record != null)
@@ -89,6 +109,21 @@ namespace EQLogParser
           {
             type = Labels.HOT;
           }
+        }
+        // Xan - THJ rune messages. Since THJ does not report heal vs over healing, putting in the over healed column
+        // Promiscuous has shielded herself from 514 points of damage. (Holy Shield)
+        else if (previous - 4 >= 0 && part.IndexOf("has shielded", "has shielded".Length, StringComparison.Ordinal) > -1)
+        {
+          healer    = test.Substring(0, previous);
+          int from  = part.IndexOf( " from ");
+          healed    = part.Substring( previous + " has shielded ".Length, from - (previous + " has shielded ".Length) );
+          if( healed == "himself" || healed == "herself" )
+            healed  = healer;
+
+          heal      = 0;
+          overHeal  = UInt32.Parse( part.Substring( from + " from ".Length, part.IndexOf( " points of damage") - (from + " from ".Length)) );
+
+          type = Labels.HEAL;
         }
         // Xan - THJ specific direct healing
         else if (previous - 4 >= 0 && part.IndexOf("has healed", previous - 3, StringComparison.Ordinal) > -1)
@@ -218,6 +253,41 @@ namespace EQLogParser
 
         if (!string.IsNullOrEmpty(healed))
         {
+          // Xan - THJ pets as healers or healed
+          if( !string.IsNullOrEmpty(healer) && healer.Contains( "(Owner:" ) )
+          {
+                int iOwn    = healer.IndexOf( "(Owner:" );
+                if( iOwn > -1 )
+                {
+                    string  pet      = healer.Substring( 0, iOwn -1 );
+                    string  owner    = healer.Substring( iOwn + 8, healer.IndexOf( ')' ) - (iOwn +8));
+
+                    var verifiedPet = PlayerManager.Instance.IsVerifiedPet( pet );
+                    if( verifiedPet && PlayerManager.Instance.IsVerifiedPlayer( owner ) )
+                    {
+                        PlayerManager.Instance.AddPetToPlayer( pet, owner );
+                    }
+                    healer    = pet;
+                }
+          }
+          if( !string.IsNullOrEmpty(healed) && healed.Contains( "(Owner:" ) )
+          {
+                int iOwn    = healed.IndexOf( "(Owner:" );
+                if( iOwn > -1 )
+                {
+                    string  pet      = healed.Substring( 0, iOwn -1 );
+                    string  owner    = healed.Substring( iOwn + 8, healed.IndexOf( ')' ) - (iOwn +8));
+
+                    var verifiedPet = PlayerManager.Instance.IsVerifiedPet( pet );
+                    if( verifiedPet && PlayerManager.Instance.IsVerifiedPlayer( owner ) )
+                    {
+                        PlayerManager.Instance.AddPetToPlayer( pet, owner );
+                    }
+                    healed    = pet;
+                }
+          }
+
+
           // check for pets
           int possessive = healed.IndexOf("`s ", StringComparison.Ordinal);
           if (possessive > -1)
@@ -228,8 +298,8 @@ namespace EQLogParser
             }
 
             // dont count swarm pets
-            healer = "";
-            heal = 0;
+            //healer = "";
+            //heal = 0;
           }
           // found a bst/mag/nec pet
           else if (!string.IsNullOrEmpty(healer) && !string.IsNullOrEmpty(spell) && spell.StartsWith("Mend Companion", StringComparison.Ordinal))
@@ -268,11 +338,45 @@ namespace EQLogParser
                 }
               }
             }
+
+            // Xan - account for ex heals from THJ
+            if( LastCrit != null )
+            {
+                if( LastCrit.LineData.BeginTime == beginTime )
+                {
+                    if( record.Healer == LastCrit.Healer )
+                    {
+                        record.ModifiersMask |= LineModifiersParser.CRIT;
+                        LastCrit    = null;
+                    }
+                }
+                else
+                {
+                    HealRecord fakeRecord = new HealRecord()
+                    {
+                      Total     = 0,
+                      OverTotal = (uint) LastCrit.Amount,
+                      Healer    = string.Intern(LastCrit.Healer),
+                      Healed    = string.Intern("Unknown"),
+                      Type      = string.Intern(Labels.UNK),
+                      ModifiersMask = LineModifiersParser.CRIT
+                    };
+                    // DataManager.Instance.AddHealRecord( fakeRecord, beginTime );
+                    LastCrit    = null;
+                }
+            }
           }
         }
       }
 
       return record;
+    }
+
+    private class OldCritData
+    {
+      internal string Healer { get; set; }
+      internal int Amount { get; set; }
+      internal LineData LineData { get; set; }
     }
   }
 }
