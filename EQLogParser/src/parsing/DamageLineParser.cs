@@ -50,6 +50,7 @@ namespace EQLogParser
     };
 
     private static OldCritData LastCrit;
+    private static OldCritData LastSlay;
 
     static DamageLineParser() => HitMap.Keys.ToList().ForEach(key => HitMap[HitMap[key]] = HitMap[key]); // add two way mapping
 
@@ -72,6 +73,17 @@ namespace EQLogParser
       try
       {
         string[] split = lineData.Action.Split(' ');
+
+        // Xan - fix for poorly formatted slay messages
+        if( split[ split.Length -1].Contains( "target!(" ) )
+        {
+            List<string>    tlist   = new List<string>( split );
+            string  tp  = split[ split.Length -1];
+            int     op  = tp.IndexOf( "(" );
+            tlist[ tlist.Count -1 ] = "target!";
+            tlist.Add( tp.Substring( op, tp.Length - op ) );
+            split       = tlist.ToArray( );
+        }
 
         if (split != null && split.Length >= 2)
         {
@@ -240,7 +252,15 @@ namespace EQLogParser
                   case "hit!":
                     if (stop == i && split.Length > 4 && split[i - 1] == "critical" && split[i - 3] == "scores")
                     {
-                      LastCrit = new OldCritData { Attacker = split[0], LineData = lineData };
+                        LastCrit = new OldCritData { Attacker = split[0], LineData = lineData };
+                    }
+                    break;
+                  // Xan - Old (EQEMU) slay
+                  // Promiscuous's holy blade cleanses her target!(3540)
+                  case "target!":
+                    if (stop == i && split.Length > 4 && split[i - 2] == "cleanses" )
+                    {
+                        LastSlay = new OldCritData { Attacker = split[0].Substring( 0, split[0].IndexOf( "'s" ) ), LineData = lineData };
                     }
                     break;
                   // Xan - Old (EQEMU) dd spell crit
@@ -782,12 +802,22 @@ namespace EQLogParser
           // handle old style crits for eqemu
           if (LastCrit != null && LastCrit.Attacker == record.Attacker )//&& LastCrit.LineData.LineNumber == (lineData.LineNumber - 1))
           {
-            if (!double.IsNaN(LastCrit.LineData.BeginTime) && (currentTime - LastCrit.LineData.BeginTime) <= 1)
+            if (!double.IsNaN(LastCrit.LineData.BeginTime) && (currentTime - LastCrit.LineData.BeginTime) == 0)
             {
               record.ModifiersMask = (record.ModifiersMask == -1) ? LineModifiersParser.CRIT : record.ModifiersMask | LineModifiersParser.CRIT;
             }
 
             LastCrit = null;
+          }
+          // handle old style slays for eqemu
+          if (LastSlay != null && LastSlay.Attacker == record.Attacker )//&& LastCrit.LineData.LineNumber == (lineData.LineNumber - 1))
+          {
+            if (!double.IsNaN(LastSlay.LineData.BeginTime) && (currentTime - LastSlay.LineData.BeginTime) == 0)
+            {
+              record.ModifiersMask = (record.ModifiersMask == -1) ? LineModifiersParser.SLAY | LineModifiersParser.CRIT : record.ModifiersMask | LineModifiersParser.SLAY | LineModifiersParser.CRIT;
+            }
+
+            LastSlay = null;
           }
 
           CheckSlainQueue(currentTime);

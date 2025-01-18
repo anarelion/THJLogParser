@@ -20,17 +20,17 @@ namespace EQLogParser
     };
 
     public const int CRIT = 2;
-    private const int TWINCAST = 1;
-    private const int LUCKY = 4;
-    private const int RAMPAGE = 8;
-    private const int STRIKETHROUGH = 16;
-    private const int RIPOSTE = 32;
-    private const int ASSASSINATE = 64;
-    private const int HEADSHOT = 128;
-    private const int SLAY = 256;
-    private const int DOUBLEBOW = 512;
-    private const int FLURRY = 1024;
-    private const int FINISHING = 2048;
+    public const int TWINCAST = 1;
+    public const int LUCKY = 4;
+    public const int RAMPAGE = 8;
+    public const int STRIKETHROUGH = 16;
+    public const int RIPOSTE = 32;
+    public const int ASSASSINATE = 64;
+    public const int HEADSHOT = 128;
+    public const int SLAY = 256;
+    public const int DOUBLEBOW = 512;
+    public const int FLURRY = 1024;
+    public const int FINISHING = 2048;
 
     private static readonly ConcurrentDictionary<string, int> MaskCache = new ConcurrentDictionary<string, int>();
 

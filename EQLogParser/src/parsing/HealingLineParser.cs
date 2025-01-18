@@ -112,7 +112,7 @@ namespace EQLogParser
         }
         // Xan - THJ rune messages. Since THJ does not report heal vs over healing, putting in the over healed column
         // Promiscuous has shielded herself from 514 points of damage. (Holy Shield)
-        else if (previous - 4 >= 0 && part.IndexOf("has shielded", "has shielded".Length, StringComparison.Ordinal) > -1)
+        else if (previous - 4 >= 0 && part.IndexOf("has shielded" ) > -1)
         {
           healer    = test.Substring(0, previous);
           int from  = part.IndexOf( " from ");
