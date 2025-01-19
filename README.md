@@ -6,7 +6,7 @@ To run, just download the zip, unzip to your location of choice, and navigte to 
 
 Updated: 1/19/2025
 
-Fixes for THJ formatting to:
+Fixes for THJ formatting to:<BR>
 Slay damage (also counted as a critical hit)
 Block (vs 'blocks' from live formatting)
 Enchanter pets (custom names and doppleganger not being listed)
