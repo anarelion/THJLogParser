@@ -245,7 +245,8 @@ namespace EQLogParser
           }
           else
           {
-            npcDefender = PlayerManager.IsPossiblePlayerName(record.Attacker) || !PlayerManager.IsPossiblePlayerName(record.Defender);
+            // Xan much of this function seems... off.. but this particular part was dropping custom pet names (ex enchanter) on THJ. this will probably produce more noise somewhere, but a fix for now
+            npcDefender = true;//PlayerManager.IsPossiblePlayerName(record.Attacker) || !PlayerManager.IsPossiblePlayerName(record.Defender);
             valid = true;
           }
         }

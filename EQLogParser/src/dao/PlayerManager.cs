@@ -316,12 +316,17 @@ namespace EQLogParser
       return player;
     }
 
-    internal bool IsVerifiedPet(string name)
+    internal bool IsVerifiedPet(string name, bool ownerTagged=false)
     {
       bool found = false;
       bool isGameGenerated = false;
 
-      if (!string.IsNullOrEmpty(name))
+      // Xan added a bypass for the owner tag
+      if( ownerTagged )
+      {
+        return true;
+      }
+      else if (!string.IsNullOrEmpty(name))
       {
         found = VerifiedPets.ContainsKey(name);
         isGameGenerated = !found && GameGeneratedPets.ContainsKey(name);

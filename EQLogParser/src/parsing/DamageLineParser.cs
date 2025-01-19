@@ -204,6 +204,7 @@ namespace EQLogParser
                       }
                     }
                     break;
+                  case "block!":
                   case "blocks!":
                     missType = (stop == i && butIndex > -1 && i > tryIndex) ? 0 : missType;
                     break;
@@ -469,9 +470,11 @@ namespace EQLogParser
                 // Xan - get spell name from THJ format
                 if( split[ split.Length -1 ].EndsWith( ")" ) )
                 {
-                  string spelltype    = Labels.DD;
-                  string spellname  = "";
-                  int openp = split.Length -1;
+                  string spelltype      = Labels.DD;
+                  SpellResist resist    = SpellResist.UNDEFINED;
+                  string spellname      = "";
+
+                  int openp             = split.Length -1;
                   for( ; openp > 0; openp-- )
                   {
                     if( split[ openp ].StartsWith( "(" ) )
@@ -482,7 +485,6 @@ namespace EQLogParser
                   }
                   if( spellname != "" )
                   {
-                      SpellResist resist = SpellResist.UNDEFINED;
                       if( DataManager.Instance.GetDamagingSpellByName( spellname ) is SpellData spellData && spellData != null )
                       {
                         resist = spellData.Resist;
@@ -491,7 +493,10 @@ namespace EQLogParser
                       CreateDamageRecord(lineData, split, stop, attacker, defender, damage, spelltype, spellname, resist);
                   }
                   else
-                      CreateDamageRecord(lineData, split, stop, attacker, defender, damage, Labels.DD, Labels.DD);
+                  {
+                    spellname   = Labels.DD;
+                  }
+                  CreateDamageRecord(lineData, split, stop, attacker, defender, damage, spelltype, spellname, resist);
                 }
                 else
                   CreateDamageRecord(lineData, split, stop, attacker, defender, damage, Labels.DD, Labels.DD);
@@ -731,7 +736,7 @@ namespace EQLogParser
             string  pet      = attacker.Substring( 0, iOwn -1 );
             string  owner    = attacker.Substring( iOwn + 8, attacker.IndexOf( ')' ) - (iOwn +8));
 
-            var verifiedPet = PlayerManager.Instance.IsVerifiedPet( pet );
+            var verifiedPet = PlayerManager.Instance.IsVerifiedPet( pet, true );
             if( verifiedPet && PlayerManager.Instance.IsVerifiedPlayer( owner ) )
             {
                 PlayerManager.Instance.AddPetToPlayer( pet, owner );
@@ -842,7 +847,14 @@ namespace EQLogParser
       bool hasOwner = false;
       owner = null;
 
-      if (!string.IsNullOrEmpty(name))
+      // Xan the logic below this is kicking out custom THJ (enchanter) pet names, so short circuiting for known assigned pets
+      string    own = PlayerManager.Instance.GetPlayerFromPet( name );
+      if( !string.IsNullOrEmpty( own ) )
+      {
+        hasOwner    = true;
+        owner       = own;
+      }
+      else if (!string.IsNullOrEmpty(name))
       {
         int pIndex = name.IndexOf("`s ", StringComparison.Ordinal);
         if ((pIndex > -1 && IsPetOrMount(name, pIndex + 3, out _)) || (pIndex = name.LastIndexOf(" pet", StringComparison.Ordinal)) > -1)

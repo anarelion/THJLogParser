@@ -421,6 +421,10 @@ namespace EQLogParser
       if (!string.IsNullOrEmpty(name) && name != Labels.UNKSPELL && SpellsNameDB.TryGetValue(name, out List<SpellData> spellList))
       {
         spellData = spellList.Find(item => item.Damaging > 0);
+        // Xan - losing spells here due to the Damaging field (ex. Splurt not found)
+        // going to return first entry in that case if only 1 entry
+        if( spellData == null && spellList.Count == 1 )
+            spellData   = spellList[0];
       }
 
       return spellData;
