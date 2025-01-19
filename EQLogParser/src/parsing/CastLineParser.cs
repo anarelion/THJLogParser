@@ -99,19 +99,24 @@ namespace EQLogParser
               }
             }
           }
-          else if (sList.Count > 4 && sList[sList.Count - 1] == "interrupted." && sList[sList.Count - 2] == "is" && sList[sList.Count - 3] == "spell")
+          //[Sun Jan 19 16:17:04 2025] Your spell is interrupted.
+          //[Sun Jan 19 16:27:49 2025] Zaxsvo's casting is interrupted!
+          //Since no spell name in interrupts, having faith this function correctly flags last added spell in AllSpellCastBlocks
+          else if (sList[3].Contains("interrupted"))
           {
             isInterrupted = true;
-            spellName = string.Join(" ", sList.ToArray(), 1, sList.Count - 4);
 
             if (sList[0] == "Your")
             {
-              player = ConfigUtil.PlayerName;
+                player = ConfigUtil.PlayerName;
             }
             else if (sList[0].Length > 3 && sList[0][sList[0].Length - 1] == 's' && sList[0][sList[0].Length - 2] == '\'')
             {
-              player = sList[0].Substring(0, sList[0].Length - 2);
+                player = sList[0].Substring(0, sList[0].Length - 2);
             }
+
+            double currentTime = lineData.BeginTime;
+            DataManager.Instance.HandleSpellInterrupt(player, currentTime);
           }
 
           if (!string.IsNullOrEmpty(player) && !string.IsNullOrEmpty(spellName))
