@@ -108,11 +108,11 @@ namespace EQLogParser
 
             if (sList[0] == "Your")
             {
-                player = ConfigUtil.PlayerName;
+              player = ConfigUtil.PlayerName;
             }
             else if (sList[0].Length > 3 && sList[0][sList[0].Length - 1] == 's' && sList[0][sList[0].Length - 2] == '\'')
             {
-                player = sList[0].Substring(0, sList[0].Length - 2);
+              player = sList[0].Substring(0, sList[0].Length - 2);
             }
 
             double currentTime = lineData.BeginTime;
