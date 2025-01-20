@@ -212,7 +212,9 @@ namespace EQLogParser
 
         if (isDefenderNpc && !isAttackerNpc)
         {
-          valid = isAttackerPlayer || PlayerManager.IsPossiblePlayerName(record.Attacker);
+          // Xan - another pc check getting in the way of pets
+          // valid = isAttackerPlayer || PlayerManager.IsPossiblePlayerName(record.Attacker);
+          valid = true;
           npcDefender = true;
         }
         else if (!isDefenderNpc && isAttackerNpc)
