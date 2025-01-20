@@ -490,7 +490,6 @@ namespace EQLogParser
                         resist = spellData.Resist;
                         spelltype   = ( spellData.Duration > 0 ) ? Labels.DOT: Labels.DD;
 					  }
-                      CreateDamageRecord(lineData, split, stop, attacker, defender, damage, spelltype, spellname, resist);
                   }
                   else
                   {
