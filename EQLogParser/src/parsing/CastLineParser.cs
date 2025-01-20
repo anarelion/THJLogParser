@@ -134,10 +134,6 @@ namespace EQLogParser
               var spellData = DataManager.Instance.GetSpellByName(spellName);
               DataManager.Instance.AddSpellCast(new SpellCast { Caster = player, Spell = string.Intern(spellName), SpellData = spellData, BeginTime = currentTime }, currentTime);
             }
-            else
-            {
-              DataManager.Instance.HandleSpellInterrupt(player, spellName, currentTime);
-            }
           }
         }
       }
