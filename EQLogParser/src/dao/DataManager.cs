@@ -482,11 +482,12 @@ namespace EQLogParser
       Helpers.AddAction(AllHealBlocks, record, beginTime);
     }
 
-    internal void HandleSpellInterrupt(string player, string spell, double beginTime)
+    //THJ: Removed spell name requirement. Assuming this correctly flags player's last cast
+    internal void HandleSpellInterrupt(string player, double beginTime)
     {
       for (int i = AllSpellCastBlocks.Count - 1; i >= 0 && beginTime - AllSpellCastBlocks[i].BeginTime <= 5; i--)
       {
-        int index = AllSpellCastBlocks[i].Actions.FindLastIndex(action => action is SpellCast sc && sc.Spell == spell && sc.Caster == player);
+        int index = AllSpellCastBlocks[i].Actions.FindLastIndex(action => action is SpellCast sc && sc.Caster == player);
         if (index > -1 && AllSpellCastBlocks[i].Actions[index] is SpellCast cast)
         {
           cast.Interrupted = true;
