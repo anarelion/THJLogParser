@@ -3,7 +3,6 @@
 This is an older branch of the EQLogParser build (free of the new dev sign in stuff) that was modified to work with The Hero's Journey EQ Emulator server and its particular messaging. At this time, damage messages should break out by type correctly, but healing may not be reliable.
 
 To run, just download the zip, unzip to your location of choice, and navigte to EQLogParser\bin\Debug\net6.0-windows10.0.17763.0 to launch EQLogParser.exe.
-Also, copy your spell_us.txt file from your THJ EQ folder to the EQLogparser folder for better accuracy!
 
 Updated: 1/19/2025 9:45pm CST<BR>
 
