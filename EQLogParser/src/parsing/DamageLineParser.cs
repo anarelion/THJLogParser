@@ -743,8 +743,10 @@ namespace EQLogParser
             attacker    = pet;
         }
 
-        // Xan - specifically address Soandso's Celestial Hammer
+        // Xan - specifically address Soandso's Celestial Hammer (added doppelganger check); thanks Dumot!
         int iCH    = attacker.IndexOf( "`s Celestial Hammer" );
+        if( iCH == -1 )
+            iCH = attacker.IndexOf( "`s doppelganger" );
         if( iCH > -1 )
         {
             string  owner    = attacker.Substring( 0, iCH );
@@ -847,7 +849,14 @@ namespace EQLogParser
       bool hasOwner = false;
       owner = null;
 
-      if (!string.IsNullOrEmpty(name))
+      // Xan the logic below this is kicking out custom THJ (enchanter) pet names, so short circuiting for known assigned pets
+      string    own = PlayerManager.Instance.GetPlayerFromPet( name );
+      if( !string.IsNullOrEmpty( own ) )
+      {
+        hasOwner    = true;
+        owner       = own;
+      }
+      else if (!string.IsNullOrEmpty(name))
       {
         int pIndex = name.IndexOf("`s ", StringComparison.Ordinal);
         if ((pIndex > -1 && IsPetOrMount(name, pIndex + 3, out _)) || (pIndex = name.LastIndexOf(" pet", StringComparison.Ordinal)) > -1)
