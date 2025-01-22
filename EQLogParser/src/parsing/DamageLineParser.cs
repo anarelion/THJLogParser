@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -742,11 +742,15 @@ namespace EQLogParser
             }
             attacker    = pet;
         }
+
         // Xan - specifically address Soandso's Celestial Hammer
+        // and Soandso`s doppelganger
         int iCH    = attacker.IndexOf( "`s Celestial Hammer" );
-        if( iCH > -1 )
+        int doppel = attacker.IndexOf("`s doppelganger");
+        if ( iCH > -1 || doppel > -1)
         {
-            string  owner    = attacker.Substring( 0, iCH );
+            var customPet = iCH > -1 ? iCH : doppel;
+            string  owner    = attacker.Substring( 0, customPet );
 
             if( PlayerManager.Instance.IsVerifiedPlayer( owner ) )
             {
@@ -846,14 +850,7 @@ namespace EQLogParser
       bool hasOwner = false;
       owner = null;
 
-      // Xan the logic below this is kicking out custom THJ (enchanter) pet names, so short circuiting for known assigned pets
-      string    own = PlayerManager.Instance.GetPlayerFromPet( name );
-      if( !string.IsNullOrEmpty( own ) )
-      {
-        hasOwner    = true;
-        owner       = own;
-      }
-      else if (!string.IsNullOrEmpty(name))
+      if (!string.IsNullOrEmpty(name))
       {
         int pIndex = name.IndexOf("`s ", StringComparison.Ordinal);
         if ((pIndex > -1 && IsPetOrMount(name, pIndex + 3, out _)) || (pIndex = name.LastIndexOf(" pet", StringComparison.Ordinal)) > -1)
@@ -886,6 +883,7 @@ namespace EQLogParser
         part.Length >= (start + ++end) && part.Substring(start, 5) == "Mount" ||
         part.Length >= (start + ++end) && (part.Substring(start, 6) == "warder" || part.Substring(start, 6) == "Warder") ||
         // Xan - added for celestial hammer
+        part.Contains("doppelganger") ||
         part.Length >= (start + ++end) && part.Substring(start, 16) == "Celestial Hammer"
       )
       {
