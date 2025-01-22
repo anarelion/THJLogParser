@@ -746,11 +746,9 @@ namespace EQLogParser
         // Xan - specifically address Soandso's Celestial Hammer
         // and Soandso`s doppelganger
         int iCH    = attacker.IndexOf( "`s Celestial Hammer" );
-        int doppel = attacker.IndexOf("`s doppelganger");
-        if ( iCH > -1 || doppel > -1)
+        if ( iCH > -1)
         {
-            var customPet = iCH > -1 ? iCH : doppel;
-            string  owner    = attacker.Substring( 0, customPet );
+            string  owner    = attacker.Substring( 0, iCH );
 
             if( PlayerManager.Instance.IsVerifiedPlayer( owner ) )
             {
