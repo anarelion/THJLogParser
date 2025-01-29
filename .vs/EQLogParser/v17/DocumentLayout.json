@@ -7,6 +7,10 @@
       "RelativeMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|solutionrelative:eqlogparser\\src\\parsing\\damagelineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|c:\\mine\\code\\git\\eqlogparser-thj\\eqlogparser\\src\\dao\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|solutionrelative:eqlogparser\\src\\dao\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|c:\\mine\\code\\git\\eqlogparser-thj\\eqlogparser\\src\\control\\npcdamagemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|solutionrelative:eqlogparser\\src\\control\\npcdamagemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -15,16 +19,16 @@
       "RelativeMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|solutionrelative:eqlogparser\\src\\dao\\datamanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|c:\\mine\\code\\git\\eqlogparser-thj\\eqlogparser\\src\\parsing\\misclineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|solutionrelative:eqlogparser\\src\\parsing\\misclineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|c:\\mine\\code\\git\\eqlogparser-thj\\eqlogparser\\src\\parsing\\healinglineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|solutionrelative:eqlogparser\\src\\parsing\\healinglineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|c:\\mine\\code\\git\\eqlogparser-thj\\eqlogparser\\src\\parsing\\linemodifiersparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|solutionrelative:eqlogparser\\src\\parsing\\linemodifiersparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|c:\\mine\\code\\git\\eqlogparser-thj\\eqlogparser\\src\\parsing\\misclineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7573C49A-27F2-4053-8E6C-B7687DD9CBDE}|EQLogParser\\EQLogParser.csproj|solutionrelative:eqlogparser\\src\\parsing\\misclineparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,35 +38,50 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
+              "Title": "PlayerManager.cs",
+              "DocumentMoniker": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\dao\\PlayerManager.cs",
+              "RelativeDocumentMoniker": "EQLogParser\\src\\dao\\PlayerManager.cs",
+              "ToolTip": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\dao\\PlayerManager.cs",
+              "RelativeToolTip": "EQLogParser\\src\\dao\\PlayerManager.cs",
+              "ViewState": "AgIAADQBAAAAAAAAAAApwEMBAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-29T03:39:19.068Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "DataManager.cs",
               "DocumentMoniker": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\dao\\DataManager.cs",
               "RelativeDocumentMoniker": "EQLogParser\\src\\dao\\DataManager.cs",
               "ToolTip": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\dao\\DataManager.cs",
               "RelativeToolTip": "EQLogParser\\src\\dao\\DataManager.cs",
-              "ViewState": "AgIAAI8BAAAAAAAAAAD4v6kBAAAIAAAAAAAAAA==",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAmwBsAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-20T02:55:12.862Z"
+              "WhenOpened": "2025-01-20T02:55:12.862Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "NpcDamageManager.cs",
               "DocumentMoniker": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\control\\NpcDamageManager.cs",
               "RelativeDocumentMoniker": "EQLogParser\\src\\control\\NpcDamageManager.cs",
               "ToolTip": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\control\\NpcDamageManager.cs",
               "RelativeToolTip": "EQLogParser\\src\\control\\NpcDamageManager.cs",
-              "ViewState": "AgIAACsAAAAAAAAAAAAcwDwAAAAGAAAAAAAAAA==",
+              "ViewState": "AgIAAOoAAAAAAAAAAADgv/kAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-19T07:19:09.935Z"
+              "WhenOpened": "2025-01-19T07:19:09.935Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "MiscLineParser.cs",
               "DocumentMoniker": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\parsing\\MiscLineParser.cs",
               "RelativeDocumentMoniker": "EQLogParser\\src\\parsing\\MiscLineParser.cs",
@@ -80,9 +99,10 @@
               "RelativeDocumentMoniker": "EQLogParser\\src\\parsing\\LineModifiersParser.cs",
               "ToolTip": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\parsing\\LineModifiersParser.cs",
               "RelativeToolTip": "EQLogParser\\src\\parsing\\LineModifiersParser.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwCAAAAAKAAAAAAAAAA==",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAuwCAAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-16T21:16:41.64Z"
+              "WhenOpened": "2025-01-16T21:16:41.64Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -92,9 +112,10 @@
               "RelativeDocumentMoniker": "EQLogParser\\src\\parsing\\HealingLineParser.cs",
               "ToolTip": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\parsing\\HealingLineParser.cs",
               "RelativeToolTip": "EQLogParser\\src\\parsing\\HealingLineParser.cs",
-              "ViewState": "AgIAAGoAAAAAAAAAAAAwwHkAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAwC4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-18T05:26:49.183Z"
+              "WhenOpened": "2024-12-18T05:26:49.183Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -104,7 +125,7 @@
               "RelativeDocumentMoniker": "EQLogParser\\src\\parsing\\DamageLineParser.cs",
               "ToolTip": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\src\\parsing\\DamageLineParser.cs",
               "RelativeToolTip": "EQLogParser\\src\\parsing\\DamageLineParser.cs",
-              "ViewState": "AgIAAE0DAAAAAAAAAAAAwF4DAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAOACAAAAAAAAAADgv+0CAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-17T21:23:23.511Z",
               "EditorCaption": ""

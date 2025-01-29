@@ -396,8 +396,15 @@ namespace EQLogParser
     {
       if (stats.Hits > 0)
       {
-        stats.DPS = (long)Math.Round(stats.Total / stats.TotalSeconds, 2);
+        stats.DPS  = (long)Math.Round(stats.Total / stats.TotalSeconds, 2);
         stats.SDPS = (long)Math.Round(stats.Total / raidStats.TotalSeconds, 2);
+        // Xan - trick the parser into showing rates for only potential healing (ex. runes)
+        if( stats.Total == 0 && stats.Extra > 0 && stats.Type == Labels.RUNE )
+        {
+            stats.DPS  = (long)Math.Round(stats.Extra / stats.TotalSeconds, 2);
+            stats.SDPS = (long)Math.Round(stats.Extra / raidStats.TotalSeconds, 2);
+        }
+
         stats.Avg = (long)Math.Round(Convert.ToDecimal(stats.Total) / stats.Hits, 2);
         stats.Potential = stats.Total + stats.Extra;
 

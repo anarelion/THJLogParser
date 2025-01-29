@@ -35,11 +35,15 @@ namespace EQLogParser
 
         // Xan - reordered the search here and adding check for THJ rune msg
         int index   = action.LastIndexOf(" healed ", action.Length, StringComparison.Ordinal);
+        int rindex  = action.LastIndexOf(" shielded ", action.Length, StringComparison.Ordinal);
         if( index == -1 )
-            index   = action.LastIndexOf(" shielded ", action.Length, StringComparison.Ordinal);
+            index   = rindex;
         if (action.Length >= 23 && index > -1)
         {
           HealRecord record = HandleHealed(action, index, lineData.BeginTime);
+          if( rindex > -1 )
+              record.Type   = Labels.RUNE;
+
           if (record != null)
           {
             DataManager.Instance.AddHealRecord(record, lineData.BeginTime);
