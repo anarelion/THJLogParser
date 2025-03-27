@@ -743,10 +743,11 @@ namespace EQLogParser
             attacker    = pet;
         }
 
+        // changed to `s because there are more and more custom pet names
         // Xan - specifically address Soandso's Celestial Hammer (added doppelganger check); thanks Dumot!
-        int iCH    = attacker.IndexOf( "`s Celestial Hammer" );
-        if( iCH == -1 )
-            iCH = attacker.IndexOf( "`s doppelganger" );
+        int iCH    = attacker.IndexOf( "`s " );//Celestial Hammer" );
+        //if( iCH == -1 )
+        //    iCH = attacker.IndexOf( "`s doppelganger" );
         if( iCH > -1 )
         {
             string  owner    = attacker.Substring( 0, iCH );

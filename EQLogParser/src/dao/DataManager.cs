@@ -424,13 +424,18 @@ namespace EQLogParser
       return result;
     }
 
-    internal SpellData GetDamagingSpellByName(string name)
+    internal SpellData GetDamagingSpellByName(string name, bool bPC = false)
     {
       SpellData spellData = null;
 
       if (!string.IsNullOrEmpty(name) && name != Labels.UNKSPELL && SpellsNameDB.TryGetValue(name, out List<SpellData> spellList))
       {
-        spellData = spellList.Find(item => item.Damaging > 0);
+        // Xan - SOE/DBG brilliantly have multiple spells with the same name, so added a param to check for PC spells if we think we're parsing a player
+        if( bPC )
+            spellData = spellList.Find(item => item.Damaging > 0 && item.ClassMask > 0 );
+        else
+            spellData = spellList.Find(item => item.Damaging > 0);
+
         // Xan - losing spells here due to the Damaging field (ex. Splurt not found)
         // going to return first entry in that case if only 1 entry
         if( spellData == null && spellList.Count == 1 )
@@ -3000,8 +3005,8 @@ namespace EQLogParser
                 int base2 = ParseInt(fields[32 + i]);
 
                 // unused slot, no more to follow
-                if (spa == 254)
-                    break;
+                // if (spa == 254)
+                //    break;
 
                 // unused slot, but there are more to follow
                 //if (desc == null)
