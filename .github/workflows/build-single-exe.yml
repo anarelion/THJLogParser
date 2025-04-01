@@ -21,34 +21,47 @@ jobs:
       with:
         dotnet-version: 6.0.x
         
-    # First exclude problematic projects before any restore or clean operations
+    # First exclude problematic projects before any restore operations
     - name: Update solution to exclude WixCustom and EQLogParserInstall projects
       run: |
-        dotnet sln EQLogParser.sln remove WixCustom/WixCustom.csproj
-        dotnet sln EQLogParser.sln remove EQLogParserInstall/EQLogParserInstall.wixproj
+        dotnet sln EQLogParser.sln remove WixCustom/WixCustom.csproj || echo "WixCustom already removed or not found"
+        dotnet sln EQLogParser.sln remove EQLogParserInstall/EQLogParserInstall.wixproj || echo "EQLogParserInstall already removed or not found"
         
     # Exclude theme projects that have Syncfusion.Calculate.Base dependency issues
     - name: Update solution to exclude theme projects
       run: |
-        dotnet sln EQLogParser.sln remove MaterialDarkCustom/Syncfusion.Themes.MaterialDarkCustom.csproj
-        dotnet sln EQLogParser.sln remove MaterialLightCustom/Syncfusion.Themes.MaterialLightCustom.csproj
+        dotnet sln EQLogParser.sln remove MaterialDarkCustom/Syncfusion.Themes.MaterialDarkCustom.csproj || echo "MaterialDarkCustom already removed or not found"
+        dotnet sln EQLogParser.sln remove MaterialLightCustom/Syncfusion.Themes.MaterialLightCustom.csproj || echo "MaterialLightCustom already removed or not found"
         
-    # Update the EQLogParser.csproj to remove theme project references
-    - name: Update main project file to remove theme dependencies
+    # Update the EQLogParser.csproj to fix project and runtime settings
+    - name: Update main project file to fix dependencies and runtime settings
       run: |
         $projFile = "EQLogParser/EQLogParser.csproj"
         $content = Get-Content $projFile -Raw
+        
+        # Remove theme project references
         $content = $content -replace '<ProjectReference Include=".\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj" />', ''
         $content = $content -replace '<ProjectReference Include=".\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj" />', ''
-        Set-Content $projFile $content
         
-    - name: Clean Solution
-      run: dotnet clean
-      
-    - name: Clear NuGet cache and restore dependencies
+        # Explicitly add RuntimeIdentifiers element if it doesn't exist
+        if ($content -notmatch '<RuntimeIdentifiers>') {
+          $content = $content -replace '<PropertyGroup>\s*<PublishSingleFile>true</PublishSingleFile>', '<PropertyGroup>
+    <PublishSingleFile>true</PublishSingleFile>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>'
+        }
+        
+        # Update theme package references if they're causing issues
+        $content = $content -replace '<PackageReference Include="Syncfusion.Themes.MaterialDark.WPF".*?/>', ''
+        $content = $content -replace '<PackageReference Include="Syncfusion.Themes.MaterialLight.WPF".*?/>', ''
+        
+        Set-Content $projFile $content
+    
+    # Skip clean step as it's causing issues
+    
+    - name: Clear NuGet cache and restore dependencies with specific runtime
       run: |
         dotnet nuget locals all --clear
-        dotnet restore
+        dotnet restore EQLogParser/EQLogParser.csproj /p:RuntimeIdentifier=win-x64
         
     - name: Build Single Executable
       run: |
