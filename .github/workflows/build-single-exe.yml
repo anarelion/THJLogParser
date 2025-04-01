@@ -139,21 +139,28 @@ jobs:
         # Set version variable
         $versionValue = "${{ steps.version.outputs.VERSION_DOT }}"
         
-        # Create the XML content directly as a plain string to avoid here-string formatting issues
-        $buildPropsContent = "<Project>`n"
-        $buildPropsContent += "  <PropertyGroup>`n"
-        $buildPropsContent += "    <Version>$versionValue</Version>`n"
-        $buildPropsContent += "    <AssemblyVersion>$versionValue</AssemblyVersion>`n"
-        $buildPropsContent += "    <FileVersion>$versionValue</FileVersion>`n"
-        $buildPropsContent += "    <InformationalVersion>$versionValue</InformationalVersion>`n"
-        $buildPropsContent += "    <!-- Fix for WPF resource loading in single-file publishing -->`n"
-        $buildPropsContent += "    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>`n"
-        $buildPropsContent += "    <SelfContained>true</SelfContained>`n"
-        $buildPropsContent += "    <PublishSingleFile>true</PublishSingleFile>`n"
-        $buildPropsContent += "    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>`n"
-        $buildPropsContent += "    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>`n"
-        $buildPropsContent += "  </PropertyGroup>`n"
-        $buildPropsContent += "</Project>"
+        # Create a properly formatted Directory.Build.props file that won't affect package versions
+        $buildPropsContent = @"
+<Project>
+  <PropertyGroup>
+    <!-- Only apply these version properties to our own assemblies, not package references -->
+    <Version Condition="'`$(PackageId)' == ''">$versionValue</Version>
+    <AssemblyVersion Condition="'`$(PackageId)' == ''">$versionValue</AssemblyVersion>
+    <FileVersion Condition="'`$(PackageId)' == ''">$versionValue</FileVersion>
+    <InformationalVersion Condition="'`$(PackageId)' == ''">$versionValue</InformationalVersion>
+    
+    <!-- Fix for WPF resource loading in single-file publishing -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    
+    <!-- Suppress some common warnings during build -->
+    <NoWarn>`$(NoWarn);NU1603;NU1701</NoWarn>
+  </PropertyGroup>
+</Project>
+"@
         
         $buildPropsPath = "Directory.Build.props"
         Set-Content -Path $buildPropsPath -Value $buildPropsContent
@@ -162,6 +169,7 @@ jobs:
     - name: Clear NuGet cache and restore dependencies with specific runtime
       run: |
         dotnet nuget locals all --clear
+        # Add --no-dependencies to avoid version conflicts
         dotnet restore EQLogParser/EQLogParser.csproj /p:RuntimeIdentifier=win-x64
         
     - name: Build Single Executable
