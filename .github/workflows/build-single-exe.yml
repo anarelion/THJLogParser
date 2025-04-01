@@ -62,8 +62,33 @@ jobs:
           $content = $content -replace '<PropertyGroup>\s*<PublishSingleFile>true</PublishSingleFile>', $replacement
         }
         
-        # Update the ApplicationVersion property with the GitHub build version
-        $content = $content -replace '<ApplicationVersion>.*?</ApplicationVersion>', "<ApplicationVersion>${{ steps.version.outputs.VERSION_DOT }}</ApplicationVersion>"
+        # Ensure consistent versioning across all version properties
+        $versionDot = "${{ steps.version.outputs.VERSION_DOT }}"
+        $content = $content -replace '<ApplicationVersion>.*?</ApplicationVersion>', "<ApplicationVersion>$versionDot</ApplicationVersion>"
+        
+        # Add or update other version properties for consistency
+        if ($content -notmatch '<AssemblyVersion>') {
+          $content = $content -replace '</PropertyGroup>', "  <AssemblyVersion>$versionDot</AssemblyVersion>$([Environment]::NewLine)</PropertyGroup>"
+        } else {
+          $content = $content -replace '<AssemblyVersion>.*?</AssemblyVersion>', "<AssemblyVersion>$versionDot</AssemblyVersion>"
+        }
+        
+        if ($content -notmatch '<FileVersion>') {
+          $content = $content -replace '</PropertyGroup>', "  <FileVersion>$versionDot</FileVersion>$([Environment]::NewLine)</PropertyGroup>"
+        } else {
+          $content = $content -replace '<FileVersion>.*?</FileVersion>', "<FileVersion>$versionDot</FileVersion>"
+        }
+        
+        if ($content -notmatch '<Version>') {
+          $content = $content -replace '</PropertyGroup>', "  <Version>$versionDot</Version>$([Environment]::NewLine)</PropertyGroup>"
+        } else {
+          $content = $content -replace '<Version>.*?</Version>', "<Version>$versionDot</Version>"
+        }
+        
+        # Add WPF specific properties to fix resource handling in single file publishing
+        if ($content -notmatch '<UseWPF>') {
+          $content = $content -replace '</PropertyGroup>', "  <UseWPF>true</UseWPF>$([Environment]::NewLine)</PropertyGroup>"
+        }
         
         # Update theme package references if they're causing issues
         $content = $content -replace '<PackageReference Include="Syncfusion.Themes.MaterialDark.WPF".*?/>', ''
@@ -96,6 +121,42 @@ jobs:
     
     # Skip clean step as it's causing issues
     
+    - name: Ensure App.xaml is properly configured for single-file publishing
+      run: |
+        $appXamlPath = "EQLogParser/App.xaml"
+        if (Test-Path $appXamlPath) {
+          Write-Host "Checking App.xaml configuration for single-file compatibility"
+          $appXaml = Get-Content $appXamlPath -Raw
+          
+          # Ensure there are no hardcoded assembly versions in the XAML
+          if ($appXaml -match 'Version=[0-9\.]+') {
+            Write-Host "Warning: Found hardcoded version reference in App.xaml. This can cause issues with single-file publishing."
+          }
+        } else {
+          Write-Host "Warning: App.xaml not found at expected location"
+        }
+        
+        # Create or update Directory.Build.props to ensure consistent WPF resource handling
+        $buildPropsPath = "Directory.Build.props"
+        $buildPropsContent = @"
+<Project>
+  <PropertyGroup>
+    <Version>${{ steps.version.outputs.VERSION_DOT }}</Version>
+    <AssemblyVersion>${{ steps.version.outputs.VERSION_DOT }}</AssemblyVersion>
+    <FileVersion>${{ steps.version.outputs.VERSION_DOT }}</FileVersion>
+    <InformationalVersion>${{ steps.version.outputs.VERSION_DOT }}</InformationalVersion>
+    <!-- Fix for WPF resource loading in single-file publishing -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+  </PropertyGroup>
+</Project>
+"@
+        Set-Content -Path $buildPropsPath -Value $buildPropsContent
+        Write-Host "Created Directory.Build.props with consistent version settings"
+    
     - name: Clear NuGet cache and restore dependencies with specific runtime
       run: |
         dotnet nuget locals all --clear
@@ -103,7 +164,26 @@ jobs:
         
     - name: Build Single Executable
       run: |
-        dotnet publish EQLogParser/EQLogParser.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:DebugSymbols=false /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=true /p:Version=${{ steps.version.outputs.VERSION_DOT }} /p:FileVersion=${{ steps.version.outputs.VERSION_DOT }} /p:AssemblyVersion=${{ steps.version.outputs.VERSION_DOT }} -o publish
+        # First, set version variables uniformly for all assemblies
+        $version="${{ steps.version.outputs.VERSION_DOT }}"
+        Write-Host "Building with version: $version"
+        
+        # Special handling for PublishSingleFile - we need to ensure consistent versioning
+        # across all assemblies, resources, and compiled XAML
+        dotnet publish EQLogParser/EQLogParser.csproj -c Release -r win-x64 --self-contained true `
+          /p:PublishSingleFile=true `
+          /p:IncludeNativeLibrariesForSelfExtract=true `
+          /p:DebugType=None `
+          /p:DebugSymbols=false `
+          /p:EnableCompressionInSingleFile=true `
+          /p:IncludeAllContentForSelfExtract=true `
+          /p:AssemblyVersion=$version `
+          /p:FileVersion=$version `
+          /p:Version=$version `
+          /p:InformationalVersion=$version `
+          /p:ProductVersion=$version `
+          -o publish
+        
         Write-Host "Contents of publish directory (after build):"
         Get-ChildItem -Path publish -Recurse
       env:
@@ -162,9 +242,19 @@ jobs:
         Write-Host "Final contents of publish directory:"
         Get-ChildItem -Path publish -Recurse | Format-Table
         
-        $exeSize = (Get-Item -Path "publish/THJLogParser.exe" -ErrorAction SilentlyContinue).Length
-        if ($exeSize) {
-          Write-Host "THJLogParser.exe size: $([math]::Round($exeSize / 1MB, 2)) MB"
+        $exePath = "publish/THJLogParser.exe"
+        if (Test-Path -Path $exePath) {
+          Write-Host "THJLogParser.exe size: $([math]::Round((Get-Item -Path $exePath).Length / 1MB, 2)) MB"
+          
+          # Verify executable version info
+          try {
+            $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($exePath)
+            Write-Host "File Version: $($versionInfo.FileVersion)"
+            Write-Host "Product Version: $($versionInfo.ProductVersion)"
+            Write-Host "Assembly Version: $(([Reflection.AssemblyName]::GetAssemblyName($exePath)).Version)"
+          } catch {
+            Write-Host "Warning: Unable to read version info: $_"
+          }
         } else {
           Write-Host "WARNING: THJLogParser.exe not found in final publish directory!"
         }
