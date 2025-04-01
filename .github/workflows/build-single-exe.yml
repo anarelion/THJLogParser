@@ -14,30 +14,43 @@ jobs:
     
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
         
-    - name: Install WiX Toolset
-      run: |
-        Invoke-WebRequest -Uri https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311.exe -OutFile wix311.exe
-        Start-Process -FilePath ./wix311.exe -ArgumentList "/install","/quiet" -NoNewWindow -Wait
-        
-    - name: Clean Solution
-      run: dotnet clean
-      
-    - name: Restore dependencies
-      run: dotnet restore
-      
-    - name: Update solution to exclude WixCustom project
+    # First exclude problematic projects before any restore or clean operations
+    - name: Update solution to exclude WixCustom and EQLogParserInstall projects
       run: |
         dotnet sln EQLogParser.sln remove WixCustom/WixCustom.csproj
         dotnet sln EQLogParser.sln remove EQLogParserInstall/EQLogParserInstall.wixproj
         
-    - name: Build
+    # Exclude theme projects that have Syncfusion.Calculate.Base dependency issues
+    - name: Update solution to exclude theme projects
+      run: |
+        dotnet sln EQLogParser.sln remove MaterialDarkCustom/Syncfusion.Themes.MaterialDarkCustom.csproj
+        dotnet sln EQLogParser.sln remove MaterialLightCustom/Syncfusion.Themes.MaterialLightCustom.csproj
+        
+    # Update the EQLogParser.csproj to remove theme project references
+    - name: Update main project file to remove theme dependencies
+      run: |
+        $projFile = "EQLogParser/EQLogParser.csproj"
+        $content = Get-Content $projFile -Raw
+        $content = $content -replace '<ProjectReference Include=".\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj" />', ''
+        $content = $content -replace '<ProjectReference Include=".\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj" />', ''
+        Set-Content $projFile $content
+        
+    - name: Clean Solution
+      run: dotnet clean
+      
+    - name: Clear NuGet cache and restore dependencies
+      run: |
+        dotnet nuget locals all --clear
+        dotnet restore
+        
+    - name: Build Single Executable
       run: |
         dotnet publish EQLogParser/EQLogParser.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:DebugSymbols=false /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=true -o publish
         
@@ -51,7 +64,7 @@ jobs:
     - name: Copy data files
       run: |
         if (Test-Path "EQLogParser/data") {
-          Copy-Item -Path "EQLogParser/data" -Destination "publish/data" -Recurse
+          Copy-Item -Path "EQLogParser/data" -Destination "publish/data" -Recurse -Force
         }
         
     - name: Upload build artifacts
