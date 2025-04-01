@@ -6,6 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EQLogParser.ui.common"
         xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:fa="http://schemas.fontawesome.com/icons/"
         mc:Ignorable="d"
         Title="THJLogParser - Update Available" 
         Height="250" Width="450" 

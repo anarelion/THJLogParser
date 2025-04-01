@@ -260,40 +260,46 @@ namespace EQLogParser
     /// </summary>
     private void AddCheckForUpdatesMenuItem()
     {
-        var updateMenuItem = new MenuItem
+        // Skip adding menu item if FontAwesome libraries can't be found - prevents build errors
+        try
         {
-            Header = "Check for Updates",
-            Icon = new FontAwesome()
+            // First find the menu
+            ItemCollection menuItems = null;
+            if (this.FindName("fileMenu") is MenuItem fileMenuItem)
             {
-                Icon = FontAwesomeIcon.CloudDownloadAlt,
-                Foreground = Brushes.White,
-                Style = (Style)FindResource("FontAwesomeStyle")
+                var parent = fileMenuItem.Parent;
+                if (parent is Menu parentMenu)
+                {
+                    menuItems = parentMenu.Items;
+                }
             }
-        };
-        
-        updateMenuItem.Click += async (sender, e) => await CheckForUpdatesAsync();
-        
-        // Add the menu item to the help menu or appropriate location
-        var helpMenu = findMenuItem(gridMenu.Items, "Help");
-        if (helpMenu != null)
-        {
+            
+            if (menuItems == null)
+            {
+                LOG.Warn("Could not find main menu to add Check for Updates item");
+                return;
+            }
+            
+            // Find or create the Help menu
+            var helpMenu = findMenuItem(menuItems, "Help");
+            if (helpMenu == null)
+            {
+                helpMenu = new MenuItem { Header = "Help" };
+                menuItems.Add(helpMenu);
+            }
+            
+            // Create the update menu item without FontAwesome icons to avoid build errors
+            var updateMenuItem = new MenuItem
+            {
+                Header = "Check for Updates"
+            };
+            
+            updateMenuItem.Click += async (sender, e) => await CheckForUpdatesAsync();
             helpMenu.Items.Add(updateMenuItem);
         }
-        else
+        catch (Exception ex)
         {
-            // If no Help menu, create one
-            var newHelpMenu = new MenuItem
-            {
-                Header = "Help",
-                Icon = new FontAwesome()
-                {
-                    Icon = FontAwesomeIcon.QuestionCircle,
-                    Foreground = Brushes.White,
-                    Style = (Style)FindResource("FontAwesomeStyle")
-                }
-            };
-            newHelpMenu.Items.Add(updateMenuItem);
-            gridMenu.Items.Add(newHelpMenu);
+            LOG.Error("Error adding update menu item", ex);
         }
     }
     

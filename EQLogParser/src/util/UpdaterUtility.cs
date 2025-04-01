@@ -42,7 +42,7 @@ namespace EQLogParser.util
                 else
                 {
                     // Final fallback - replace this with your actual GitHub username
-                    RepositoryOwner = "Your-GitHub-Username";
+                    RepositoryOwner = "BND10706"; // Use the actual repository owner from GitHub
                 }
             }
         }
@@ -216,7 +216,7 @@ exit
                     });
                     
                     // Exit the application to allow the updater to run
-                    Application.Current.Shutdown();
+                    System.Windows.Application.Current.Shutdown();
                 }
             }
             catch (Exception ex)

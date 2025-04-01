@@ -81,6 +81,15 @@ jobs:
         }
         
         Set-Content $projFile $content
+        
+        # Also update the UpdaterUtility to hardcode the repository owner
+        $ownerValue = "${{ github.repository_owner }}"
+        $utilFile = "EQLogParser/src/util/UpdaterUtility.cs"
+        if (Test-Path $utilFile) {
+          $utilContent = Get-Content $utilFile -Raw
+          $utilContent = $utilContent -replace 'RepositoryOwner = ".*?"; // Use the actual repository owner', 'RepositoryOwner = "' + $ownerValue + '"; // Use the actual repository owner'
+          Set-Content $utilFile $utilContent
+        }
     
     # Skip clean step as it's causing issues
     
@@ -96,6 +105,7 @@ jobs:
         Get-ChildItem -Path publish -Recurse
       env:
         GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
         
     - name: Rename executable
       run: |
