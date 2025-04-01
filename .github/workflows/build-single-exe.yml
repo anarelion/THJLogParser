@@ -45,9 +45,8 @@ jobs:
         
         # Explicitly add RuntimeIdentifiers element if it doesn't exist
         if ($content -notmatch '<RuntimeIdentifiers>') {
-          $content = $content -replace '<PropertyGroup>\s*<PublishSingleFile>true</PublishSingleFile>', '<PropertyGroup>
-    <PublishSingleFile>true</PublishSingleFile>
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>'
+          $replacement = '<PropertyGroup>' + [Environment]::NewLine + '    <PublishSingleFile>true</PublishSingleFile>' + [Environment]::NewLine + '    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>'
+          $content = $content -replace '<PropertyGroup>\s*<PublishSingleFile>true</PublishSingleFile>', $replacement
         }
         
         # Update theme package references if they're causing issues
