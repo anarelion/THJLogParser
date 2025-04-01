@@ -136,15 +136,18 @@ jobs:
           Write-Host "Warning: App.xaml not found at expected location"
         }
         
+        # Set version variable to avoid YAML expression issues in here-string
+        $versionValue = "${{ steps.version.outputs.VERSION_DOT }}"
+        
         # Create or update Directory.Build.props to ensure consistent WPF resource handling
         $buildPropsPath = "Directory.Build.props"
         $buildPropsContent = @"
 <Project>
   <PropertyGroup>
-    <Version>${{ steps.version.outputs.VERSION_DOT }}</Version>
-    <AssemblyVersion>${{ steps.version.outputs.VERSION_DOT }}</AssemblyVersion>
-    <FileVersion>${{ steps.version.outputs.VERSION_DOT }}</FileVersion>
-    <InformationalVersion>${{ steps.version.outputs.VERSION_DOT }}</InformationalVersion>
+    <Version>$versionValue</Version>
+    <AssemblyVersion>$versionValue</AssemblyVersion>
+    <FileVersion>$versionValue</FileVersion>
+    <InformationalVersion>$versionValue</InformationalVersion>
     <!-- Fix for WPF resource loading in single-file publishing -->
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <SelfContained>true</SelfContained>
