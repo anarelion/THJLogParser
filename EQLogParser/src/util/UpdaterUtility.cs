@@ -16,12 +16,36 @@ namespace EQLogParser.util
     /// </summary>
     public static class UpdaterUtility
     {
-        // This will be the GitHub repository owner - you should update this to your actual GitHub username
-        private static readonly string RepositoryOwner = Environment.GetEnvironmentVariable("GITHUB_REPOSITORY_OWNER") ?? "Your-GitHub-Username";
+        // This will be the GitHub repository owner
+        private static readonly string RepositoryOwner;
         private const string RepositoryName = "THJLogParser";
         private const string ApplicationName = "THJLogParser";
         private const string UserAgent = "THJLogParser-Updater";
         private static readonly HttpClient _httpClient = new HttpClient();
+        
+        static UpdaterUtility()
+        {
+            // Try to determine repository owner from environment variables
+            string repoFromEnv = Environment.GetEnvironmentVariable("GITHUB_REPOSITORY");
+            if (!string.IsNullOrEmpty(repoFromEnv) && repoFromEnv.Contains("/"))
+            {
+                RepositoryOwner = repoFromEnv.Split('/')[0];
+            }
+            else
+            {
+                // Fallback to GITHUB_REPOSITORY_OWNER
+                string ownerFromEnv = Environment.GetEnvironmentVariable("GITHUB_REPOSITORY_OWNER");
+                if (!string.IsNullOrEmpty(ownerFromEnv))
+                {
+                    RepositoryOwner = ownerFromEnv;
+                }
+                else
+                {
+                    // Final fallback - replace this with your actual GitHub username
+                    RepositoryOwner = "Your-GitHub-Username";
+                }
+            }
+        }
         
         private static readonly string _appDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         private static readonly string _updateTempDir = Path.Combine(_appDirectory, "update_temp");
@@ -48,16 +72,34 @@ namespace EQLogParser.util
                 
                 // Extract the version from tag name (assumed format: v1.0.0 or similar)
                 var latestVersion = latestRelease.TagName;
-                if (latestVersion.StartsWith("v"))
+                if (latestVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase))
                 {
                     latestVersion = latestVersion.Substring(1);
                 }
                 
                 // Get the current version
                 var currentVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+                if (string.IsNullOrEmpty(currentVersion))
+                {
+                    // Fallback to product version
+                    currentVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+                }
                 
-                // Simple version comparison (you might want to use a more robust version comparison)
-                bool isUpdateAvailable = !latestVersion.Equals(currentVersion, StringComparison.OrdinalIgnoreCase);
+                // Check if versions can be parsed as Version objects for proper comparison
+                bool isUpdateAvailable = false;
+                
+                // Try to parse versions for proper comparison
+                if (Version.TryParse(latestVersion, out Version newVer) && 
+                    Version.TryParse(currentVersion, out Version currentVer))
+                {
+                    // Compare using Version objects
+                    isUpdateAvailable = newVer > currentVer;
+                }
+                else
+                {
+                    // Fallback to string comparison (less reliable)
+                    isUpdateAvailable = !string.Equals(latestVersion, currentVersion, StringComparison.OrdinalIgnoreCase);
+                }
                 
                 // Find the executable asset
                 var exeAsset = latestRelease.Assets.FirstOrDefault(a => a.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase));

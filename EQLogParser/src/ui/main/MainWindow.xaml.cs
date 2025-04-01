@@ -11,6 +11,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -223,8 +224,13 @@ namespace EQLogParser
         {
             LOG.Info("Checking for updates...");
             
-            // Get the current version number
-            var currentVersion = VERSION.TrimStart('v');
+            // Get the current version from FileVersionInfo rather than the VERSION constant
+            var assembly = Assembly.GetExecutingAssembly();
+            var fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+            var currentVersion = fvi.FileVersion ?? VERSION.TrimStart('v');
+            
+            // Log the version being used for comparison
+            LOG.Info($"Current version: {currentVersion}");
             
             // Check for updates
             var (isUpdateAvailable, newVersion, downloadUrl) = await UpdaterUtility.CheckForUpdateAsync();
@@ -268,10 +274,10 @@ namespace EQLogParser
         updateMenuItem.Click += async (sender, e) => await CheckForUpdatesAsync();
         
         // Add the menu item to the help menu or appropriate location
-        var helpMenu = findMenuItem(gridMenu.ChildMenuItems, "Help");
+        var helpMenu = findMenuItem(gridMenu.Items, "Help");
         if (helpMenu != null)
         {
-            helpMenu.ChildMenuItems.Add(updateMenuItem);
+            helpMenu.Items.Add(updateMenuItem);
         }
         else
         {
@@ -286,18 +292,18 @@ namespace EQLogParser
                     Style = (Style)FindResource("FontAwesomeStyle")
                 }
             };
-            newHelpMenu.ChildMenuItems.Add(updateMenuItem);
-            gridMenu.ChildMenuItems.Add(newHelpMenu);
+            newHelpMenu.Items.Add(updateMenuItem);
+            gridMenu.Items.Add(newHelpMenu);
         }
     }
     
-    private MenuItem findMenuItem(MenuItemCollection items, string header)
+    private MenuItem findMenuItem(ItemCollection items, string header)
     {
-        foreach (MenuItem item in items)
+        foreach (object item in items)
         {
-            if (item.Header.ToString() == header)
+            if (item is MenuItem menuItem && menuItem.Header.ToString() == header)
             {
-                return item;
+                return menuItem;
             }
         }
         return null;

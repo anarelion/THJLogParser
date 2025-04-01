@@ -94,6 +94,8 @@ jobs:
         dotnet publish EQLogParser/EQLogParser.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:DebugSymbols=false /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=true /p:Version=${{ steps.version.outputs.VERSION_DOT }} /p:FileVersion=${{ steps.version.outputs.VERSION_DOT }} /p:AssemblyVersion=${{ steps.version.outputs.VERSION_DOT }} -o publish
         Write-Host "Contents of publish directory (after build):"
         Get-ChildItem -Path publish -Recurse
+      env:
+        GITHUB_REPOSITORY: ${{ github.repository }}
         
     - name: Rename executable
       run: |

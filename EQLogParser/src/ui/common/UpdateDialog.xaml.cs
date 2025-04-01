@@ -4,13 +4,14 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
 using EQLogParser.util;
+using Syncfusion.Windows.Shared;
 
 namespace EQLogParser.ui.common
 {
     /// <summary>
     /// Interaction logic for UpdateDialog.xaml
     /// </summary>
-    public partial class UpdateDialog : Window, INotifyPropertyChanged
+    public partial class UpdateDialog : ChromelessWindow, INotifyPropertyChanged
     {
         private string _currentVersionText;
         private string _newVersionText;
