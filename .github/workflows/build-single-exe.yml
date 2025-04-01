@@ -15,6 +15,8 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for proper versioning
       
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -71,26 +73,97 @@ jobs:
     - name: Build Single Executable
       run: |
         dotnet publish EQLogParser/EQLogParser.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:DebugSymbols=false /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=true -o publish
+        Write-Host "Contents of publish directory (after build):"
+        Get-ChildItem -Path publish -Recurse
         
     - name: Rename executable
       run: |
         cd publish
+        Write-Host "Current directory content:"
+        Get-ChildItem -Path . -Recurse | Format-Table
+        
+        $exeFiles = Get-ChildItem -Path . -Recurse -Include *.exe
+        Write-Host "Found $($exeFiles.Count) executable files:"
+        foreach ($file in $exeFiles) {
+            Write-Host "- $($file.FullName) (Size: $([math]::Round($file.Length / 1MB, 2)) MB)"
+        }
+        
         if (Test-Path "EQLogParser.exe") {
-          Rename-Item -Path "EQLogParser.exe" -NewName "THJLogParser.exe"
+          Write-Host "Found EQLogParser.exe, renaming to THJLogParser.exe"
+          Rename-Item -Path "EQLogParser.exe" -NewName "THJLogParser.exe" -Force
+          Write-Host "Renamed successfully"
         } else {
-          Get-ChildItem -Path . -Recurse
-          Write-Host "EQLogParser.exe not found!"
-          exit 1
+          Write-Host "ERROR: EQLogParser.exe not found in current directory!"
+          
+          # Look in other locations where it might be
+          $exeInOtherLocations = Get-ChildItem -Path .. -Recurse -Include EQLogParser.exe -ErrorAction SilentlyContinue
+          if ($exeInOtherLocations.Count -gt 0) {
+            Write-Host "Found EQLogParser.exe in other locations:"
+            foreach ($file in $exeInOtherLocations) {
+                Write-Host "- $($file.FullName)"
+                # Copy the first one found to current directory
+                if (-not (Test-Path "THJLogParser.exe")) {
+                    Copy-Item -Path $file.FullName -Destination "THJLogParser.exe" -Force
+                    Write-Host "Copied to THJLogParser.exe"
+                }
+            }
+          } else {
+            Write-Host "No EQLogParser.exe found anywhere in the workspace"
+            exit 1
+          }
         }
         
     - name: Copy data files
       run: |
         if (Test-Path "EQLogParser/data") {
+          Write-Host "Found data directory, copying to publish folder"
           Copy-Item -Path "EQLogParser/data" -Destination "publish/data" -Recurse -Force
         } else {
           Write-Host "Warning: Data directory not found. Creating empty data directory."
           New-Item -Path "publish/data" -ItemType Directory -Force
         }
+        
+    - name: Verify final artifact contents
+      run: |
+        Write-Host "Final contents of publish directory:"
+        Get-ChildItem -Path publish -Recurse | Format-Table
+        
+        $exeSize = (Get-Item -Path "publish/THJLogParser.exe" -ErrorAction SilentlyContinue).Length
+        if ($exeSize) {
+          Write-Host "THJLogParser.exe size: $([math]::Round($exeSize / 1MB, 2)) MB"
+        } else {
+          Write-Host "WARNING: THJLogParser.exe not found in final publish directory!"
+        }
+
+    - name: Create ZIP archive of build
+      run: |
+        Compress-Archive -Path publish/* -DestinationPath THJLogParser.zip -Force
+        Write-Host "Created ZIP archive of built application"
+        
+    - name: Determine version for release
+      id: version
+      run: |
+        $date = Get-Date -Format "yyyy.MM.dd"
+        $buildNumber = $env:GITHUB_RUN_NUMBER
+        $version = "$date-build$buildNumber"
+        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+        
+    - name: Create GitHub Release
+      id: create_release
+      # Only run on push to master, not on PRs
+      if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        name: THJLogParser ${{ steps.version.outputs.VERSION }}
+        tag_name: v${{ steps.version.outputs.VERSION }}
+        draft: false
+        prerelease: false
+        files: |
+          THJLogParser.zip
+          publish/THJLogParser.exe
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
