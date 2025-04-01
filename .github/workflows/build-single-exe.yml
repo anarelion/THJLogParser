@@ -53,6 +53,12 @@ jobs:
         $content = $content -replace '<PackageReference Include="Syncfusion.Themes.MaterialDark.WPF".*?/>', ''
         $content = $content -replace '<PackageReference Include="Syncfusion.Themes.MaterialLight.WPF".*?/>', ''
         
+        # Remove problematic System.IO.Compression reference
+        $content = $content -replace '<Analyzer Include="..\\..\\..\\..\\..\\..\\Program Files %28x86%29\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2\\System.IO.Compression.dll" />', ''
+        
+        # Update Microsoft.Windows.Compatibility to latest version to fix vulnerability
+        $content = $content -replace '<PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />', '<PackageReference Include="Microsoft.Windows.Compatibility" Version="8.0.0" />'
+        
         Set-Content $projFile $content
     
     # Skip clean step as it's causing issues
@@ -71,12 +77,19 @@ jobs:
         cd publish
         if (Test-Path "EQLogParser.exe") {
           Rename-Item -Path "EQLogParser.exe" -NewName "THJLogParser.exe"
+        } else {
+          Get-ChildItem -Path . -Recurse
+          Write-Host "EQLogParser.exe not found!"
+          exit 1
         }
         
     - name: Copy data files
       run: |
         if (Test-Path "EQLogParser/data") {
           Copy-Item -Path "EQLogParser/data" -Destination "publish/data" -Recurse -Force
+        } else {
+          Write-Host "Warning: Data directory not found. Creating empty data directory."
+          New-Item -Path "publish/data" -ItemType Directory -Force
         }
         
     - name: Upload build artifacts
