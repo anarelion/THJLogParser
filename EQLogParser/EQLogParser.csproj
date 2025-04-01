@@ -168,6 +168,7 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
     </PackageReference>
+    <PackageReference Include="Octokit" Version="4.0.1" />
     <PackageReference Include="Syncfusion.SfChart.WPF" Version="20.2.0.40" />
     <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="20.2.0.40" />
     <PackageReference Include="Syncfusion.Shared.Base" Version="20.2.0.45" />
@@ -175,7 +176,7 @@
     <PackageReference Include="Syncfusion.Themes.MaterialLight.WPF" Version="20.2.0.40" />
     <PackageReference Include="Syncfusion.Tools.WPF" Version="20.2.0.40" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\..\..\..\..\Program Files %28x86%29\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.IO.Compression.dll" />

@@ -35,6 +35,17 @@ jobs:
         dotnet sln EQLogParser.sln remove MaterialDarkCustom/Syncfusion.Themes.MaterialDarkCustom.csproj || echo "MaterialDarkCustom already removed or not found"
         dotnet sln EQLogParser.sln remove MaterialLightCustom/Syncfusion.Themes.MaterialLightCustom.csproj || echo "MaterialLightCustom already removed or not found"
         
+    # Determine version for build and release
+    - name: Determine version for release
+      id: version
+      run: |
+        $date = Get-Date -Format "yyyy.MM.dd"
+        $buildNumber = $env:GITHUB_RUN_NUMBER
+        $version = "$date-build$buildNumber"
+        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+        echo "VERSION_DOT=$($date.Replace('-', '.')).$buildNumber" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+        
     # Update the EQLogParser.csproj to fix project and runtime settings
     - name: Update main project file to fix dependencies and runtime settings
       run: |
@@ -51,6 +62,9 @@ jobs:
           $content = $content -replace '<PropertyGroup>\s*<PublishSingleFile>true</PublishSingleFile>', $replacement
         }
         
+        # Update the ApplicationVersion property with the GitHub build version
+        $content = $content -replace '<ApplicationVersion>.*?</ApplicationVersion>', "<ApplicationVersion>${{ steps.version.outputs.VERSION_DOT }}</ApplicationVersion>"
+        
         # Update theme package references if they're causing issues
         $content = $content -replace '<PackageReference Include="Syncfusion.Themes.MaterialDark.WPF".*?/>', ''
         $content = $content -replace '<PackageReference Include="Syncfusion.Themes.MaterialLight.WPF".*?/>', ''
@@ -60,6 +74,11 @@ jobs:
         
         # Update Microsoft.Windows.Compatibility to latest version to fix vulnerability
         $content = $content -replace '<PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />', '<PackageReference Include="Microsoft.Windows.Compatibility" Version="8.0.0" />'
+        
+        # Add Octokit package for auto-updates if it doesn't exist
+        if ($content -notmatch '<PackageReference Include="Octokit"') {
+          $content = $content -replace '<PackageReference Include="Newtonsoft.Json">\s*<Version>.*?</Version>\s*</PackageReference>', '<PackageReference Include="Newtonsoft.Json">' + [Environment]::NewLine + '      <Version>13.0.1</Version>' + [Environment]::NewLine + '    </PackageReference>' + [Environment]::NewLine + '    <PackageReference Include="Octokit" Version="4.0.1" />'
+        }
         
         Set-Content $projFile $content
     
@@ -72,7 +91,7 @@ jobs:
         
     - name: Build Single Executable
       run: |
-        dotnet publish EQLogParser/EQLogParser.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:DebugSymbols=false /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=true -o publish
+        dotnet publish EQLogParser/EQLogParser.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:DebugSymbols=false /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=true /p:Version=${{ steps.version.outputs.VERSION_DOT }} /p:FileVersion=${{ steps.version.outputs.VERSION_DOT }} /p:AssemblyVersion=${{ steps.version.outputs.VERSION_DOT }} -o publish
         Write-Host "Contents of publish directory (after build):"
         Get-ChildItem -Path publish -Recurse
         
@@ -139,15 +158,6 @@ jobs:
       run: |
         Compress-Archive -Path publish/* -DestinationPath THJLogParser.zip -Force
         Write-Host "Created ZIP archive of built application"
-        
-    - name: Determine version for release
-      id: version
-      run: |
-        $date = Get-Date -Format "yyyy.MM.dd"
-        $buildNumber = $env:GITHUB_RUN_NUMBER
-        $version = "$date-build$buildNumber"
-        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-      shell: pwsh
         
     - name: Create GitHub Release
       id: create_release

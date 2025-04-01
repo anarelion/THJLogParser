@@ -19,6 +19,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using EQLogParser.util;
+using EQLogParser.ui.common;
 
 namespace EQLogParser
 {
@@ -106,6 +108,9 @@ namespace EQLogParser
         MainActions.LoadTheme(this, CurrentTheme);
 
         InitializeComponent();
+        
+        // Add the "Check for Updates" menu item
+        AddCheckForUpdatesMenuItem();
 
         // add tabs to the right
         ((DocumentContainer)dockSite.DocContainer).AddTabDocumentAtLast = true;
@@ -191,12 +196,111 @@ namespace EQLogParser
           ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).Root.Level = Level.Debug;
           ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).RaiseConfigurationChanged(EventArgs.Empty);
         }
+        
+        // Register to check for updates after UI is loaded
+        this.Loaded += MainWindow_Loaded;
       }
       catch (Exception e)
       {
         LOG.Error(e);
         throw;
       }
+    }
+
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Check for updates after a slight delay to ensure the UI is fully loaded
+        await Task.Delay(2000);
+        await CheckForUpdatesAsync();
+    }
+    
+    /// <summary>
+    /// Checks for application updates from GitHub releases.
+    /// </summary>
+    private async Task CheckForUpdatesAsync()
+    {
+        try
+        {
+            LOG.Info("Checking for updates...");
+            
+            // Get the current version number
+            var currentVersion = VERSION.TrimStart('v');
+            
+            // Check for updates
+            var (isUpdateAvailable, newVersion, downloadUrl) = await UpdaterUtility.CheckForUpdateAsync();
+            
+            if (isUpdateAvailable && !string.IsNullOrEmpty(downloadUrl))
+            {
+                LOG.Info($"Update available: {newVersion}");
+                
+                // Show update dialog
+                var updateDialog = new UpdateDialog(currentVersion, newVersion, downloadUrl);
+                updateDialog.Owner = this;
+                updateDialog.ShowDialog();
+            }
+            else
+            {
+                LOG.Info("No updates available or unable to check for updates.");
+            }
+        }
+        catch (Exception ex)
+        {
+            LOG.Error("Error checking for updates", ex);
+        }
+    }
+    
+    /// <summary>
+    /// Adds a menu item to check for updates manually.
+    /// </summary>
+    private void AddCheckForUpdatesMenuItem()
+    {
+        var updateMenuItem = new MenuItem
+        {
+            Header = "Check for Updates",
+            Icon = new FontAwesome()
+            {
+                Icon = FontAwesomeIcon.CloudDownloadAlt,
+                Foreground = Brushes.White,
+                Style = (Style)FindResource("FontAwesomeStyle")
+            }
+        };
+        
+        updateMenuItem.Click += async (sender, e) => await CheckForUpdatesAsync();
+        
+        // Add the menu item to the help menu or appropriate location
+        var helpMenu = findMenuItem(gridMenu.ChildMenuItems, "Help");
+        if (helpMenu != null)
+        {
+            helpMenu.ChildMenuItems.Add(updateMenuItem);
+        }
+        else
+        {
+            // If no Help menu, create one
+            var newHelpMenu = new MenuItem
+            {
+                Header = "Help",
+                Icon = new FontAwesome()
+                {
+                    Icon = FontAwesomeIcon.QuestionCircle,
+                    Foreground = Brushes.White,
+                    Style = (Style)FindResource("FontAwesomeStyle")
+                }
+            };
+            newHelpMenu.ChildMenuItems.Add(updateMenuItem);
+            gridMenu.ChildMenuItems.Add(newHelpMenu);
+        }
+    }
+    
+    private MenuItem findMenuItem(MenuItemCollection items, string header)
+    {
+        foreach (MenuItem item in items)
+        {
+            if (item.Header.ToString() == header)
+            {
+                return item;
+            }
+        }
+        return null;
     }
 
     internal void CopyToEQClick(string type) => (playerParseTextWindow.Content as ParsePreview)?.CopyToEQClick(type);
