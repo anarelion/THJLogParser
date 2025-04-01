@@ -87,7 +87,10 @@ jobs:
         $utilFile = "EQLogParser/src/util/UpdaterUtility.cs"
         if (Test-Path $utilFile) {
           $utilContent = Get-Content $utilFile -Raw
-          $utilContent = $utilContent -replace 'RepositoryOwner = ".*?"; // Use the actual repository owner', 'RepositoryOwner = "' + $ownerValue + '"; // Use the actual repository owner'
+          # Fix the regex pattern to not confuse PowerShell with semicolons and comment markers
+          $pattern = 'RepositoryOwner = "(.*?)"; .*?repository owner'
+          $replacement = 'RepositoryOwner = "' + $ownerValue + '"; // Use the actual repository owner'
+          $utilContent = $utilContent -replace $pattern, $replacement
           Set-Content $utilFile $utilContent
         }
     
