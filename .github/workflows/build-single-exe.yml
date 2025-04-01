@@ -139,25 +139,23 @@ jobs:
         # Set version variable
         $versionValue = "${{ steps.version.outputs.VERSION_DOT }}"
         
-        # Create or update Directory.Build.props with string format to avoid YAML parsing issues
+        # Create the XML content directly as a plain string to avoid here-string formatting issues
+        $buildPropsContent = "<Project>`n"
+        $buildPropsContent += "  <PropertyGroup>`n"
+        $buildPropsContent += "    <Version>$versionValue</Version>`n"
+        $buildPropsContent += "    <AssemblyVersion>$versionValue</AssemblyVersion>`n"
+        $buildPropsContent += "    <FileVersion>$versionValue</FileVersion>`n"
+        $buildPropsContent += "    <InformationalVersion>$versionValue</InformationalVersion>`n"
+        $buildPropsContent += "    <!-- Fix for WPF resource loading in single-file publishing -->`n"
+        $buildPropsContent += "    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>`n"
+        $buildPropsContent += "    <SelfContained>true</SelfContained>`n"
+        $buildPropsContent += "    <PublishSingleFile>true</PublishSingleFile>`n"
+        $buildPropsContent += "    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>`n"
+        $buildPropsContent += "    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>`n"
+        $buildPropsContent += "  </PropertyGroup>`n"
+        $buildPropsContent += "</Project>"
+        
         $buildPropsPath = "Directory.Build.props"
-        $buildPropsTemplate = @'
-          <Project>
-            <PropertyGroup>
-              <Version>{0}</Version>
-              <AssemblyVersion>{0}</AssemblyVersion>
-              <FileVersion>{0}</FileVersion>
-              <InformationalVersion>{0}</InformationalVersion>
-              <!-- Fix for WPF resource loading in single-file publishing -->
-              <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-              <SelfContained>true</SelfContained>
-              <PublishSingleFile>true</PublishSingleFile>
-              <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-              <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-            </PropertyGroup>
-          </Project>
-          '@
-        $buildPropsContent = $buildPropsTemplate -f $versionValue
         Set-Content -Path $buildPropsPath -Value $buildPropsContent
         Write-Host "Created Directory.Build.props with consistent version settings"
     
