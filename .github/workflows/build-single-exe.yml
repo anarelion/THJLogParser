@@ -1,0 +1,61 @@
+name: Build Single Executable
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+    # Allow manual triggering of the workflow
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+        
+    - name: Install WiX Toolset
+      run: |
+        Invoke-WebRequest -Uri https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311.exe -OutFile wix311.exe
+        Start-Process -FilePath ./wix311.exe -ArgumentList "/install","/quiet" -NoNewWindow -Wait
+        
+    - name: Clean Solution
+      run: dotnet clean
+      
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Update solution to exclude WixCustom project
+      run: |
+        dotnet sln EQLogParser.sln remove WixCustom/WixCustom.csproj
+        dotnet sln EQLogParser.sln remove EQLogParserInstall/EQLogParserInstall.wixproj
+        
+    - name: Build
+      run: |
+        dotnet publish EQLogParser/EQLogParser.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:DebugSymbols=false /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=true -o publish
+        
+    - name: Rename executable
+      run: |
+        cd publish
+        if (Test-Path "EQLogParser.exe") {
+          Rename-Item -Path "EQLogParser.exe" -NewName "THJLogParser.exe"
+        }
+        
+    - name: Copy data files
+      run: |
+        if (Test-Path "EQLogParser/data") {
+          Copy-Item -Path "EQLogParser/data" -Destination "publish/data" -Recurse
+        }
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: THJLogParser
+        path: publish/ 
