@@ -27,8 +27,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup>
@@ -197,5 +196,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="EQLogParserTests" />
   </ItemGroup>
 </Project>

@@ -16,6 +16,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Syncfusion.Themes.MaterialD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Syncfusion.Themes.MaterialLightCustom", "MaterialLightCustom\Syncfusion.Themes.MaterialLightCustom.csproj", "{FA4BC5A6-B47E-4C88-99CF-2E7480EE5514}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EQLogParserTests", "EQLogParserTests\EQLogParserTests.csproj", "{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,6 +84,18 @@ Global
 		{FA4BC5A6-B47E-4C88-99CF-2E7480EE5514}.Release|x64.Build.0 = Release|Any CPU
 		{FA4BC5A6-B47E-4C88-99CF-2E7480EE5514}.Release|x86.ActiveCfg = Release|Any CPU
 		{FA4BC5A6-B47E-4C88-99CF-2E7480EE5514}.Release|x86.Build.0 = Release|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Debug|x64.Build.0 = Debug|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Debug|x86.Build.0 = Debug|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Release|x64.ActiveCfg = Release|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Release|x64.Build.0 = Release|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Release|x86.ActiveCfg = Release|Any CPU
+		{BB4EFE51-E6C7-4E1A-8758-199361C7CD22}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
