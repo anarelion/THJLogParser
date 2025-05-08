@@ -100,6 +100,9 @@
     <Reference Update="System.Core">
       <Private>False</Private>
     </Reference>
+    <Reference Update="System.IO.Compression">
+      <Private>False</Private>
+    </Reference>
     <Reference Update="System.Xml.Linq">
       <Private>False</Private>
     </Reference>
@@ -175,9 +178,6 @@
     <PackageReference Include="Syncfusion.Themes.MaterialLight.WPF" Version="20.2.0.40" />
     <PackageReference Include="Syncfusion.Tools.WPF" Version="20.2.0.40" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="8.0.15" />
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\..\..\..\..\..\Program Files %28x86%29\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.IO.Compression.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MaterialDarkCustom\Syncfusion.Themes.MaterialDarkCustom.csproj" />
