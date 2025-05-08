@@ -2,288 +2,288 @@ name: Build Single Executable
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
   workflow_dispatch:
     # Allow manual triggering of the workflow
 
 jobs:
   build:
     runs-on: windows-latest
-    
+
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Fetch all history for proper versioning
-      
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 6.0.x
-        
-    # First exclude problematic projects before any restore operations
-    - name: Update solution to exclude WixCustom and EQLogParserInstall projects
-      run: |
-        dotnet sln EQLogParser.sln remove WixCustom/WixCustom.csproj || echo "WixCustom already removed or not found"
-        dotnet sln EQLogParser.sln remove EQLogParserInstall/EQLogParserInstall.wixproj || echo "EQLogParserInstall already removed or not found"
-        
-    # Exclude theme projects that have Syncfusion.Calculate.Base dependency issues
-    - name: Update solution to exclude theme projects
-      run: |
-        dotnet sln EQLogParser.sln remove MaterialDarkCustom/Syncfusion.Themes.MaterialDarkCustom.csproj || echo "MaterialDarkCustom already removed or not found"
-        dotnet sln EQLogParser.sln remove MaterialLightCustom/Syncfusion.Themes.MaterialLightCustom.csproj || echo "MaterialLightCustom already removed or not found"
-        
-    # Determine version for build and release
-    - name: Determine version for release
-      id: version
-      run: |
-        $date = Get-Date -Format "yyyy.MM.dd"
-        $buildNumber = $env:GITHUB_RUN_NUMBER
-        $version = "$date-build$buildNumber"
-        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-        echo "VERSION_DOT=$($date.Replace('-', '.')).$buildNumber" >> $env:GITHUB_OUTPUT
-      shell: pwsh
-        
-    # Update the EQLogParser.csproj to fix project and runtime settings
-    - name: Update main project file to fix dependencies and runtime settings
-      run: |
-        $projFile = "EQLogParser/EQLogParser.csproj"
-        $content = Get-Content $projFile -Raw
-        
-        # Remove theme project references
-        $content = $content -replace '<ProjectReference Include=".\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj" />', ''
-        $content = $content -replace '<ProjectReference Include=".\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj" />', ''
-        
-        # Explicitly add RuntimeIdentifiers element if it doesn't exist
-        if ($content -notmatch '<RuntimeIdentifiers>') {
-          $replacement = '<PropertyGroup>' + [Environment]::NewLine + '    <PublishSingleFile>true</PublishSingleFile>' + [Environment]::NewLine + '    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>'
-          $content = $content -replace '<PropertyGroup>\s*<PublishSingleFile>true</PublishSingleFile>', $replacement
-        }
-        
-        # Ensure consistent versioning across all version properties
-        $versionDot = "${{ steps.version.outputs.VERSION_DOT }}"
-        $content = $content -replace '<ApplicationVersion>.*?</ApplicationVersion>', "<ApplicationVersion>$versionDot</ApplicationVersion>"
-        
-        # Add or update other version properties for consistency
-        if ($content -notmatch '<AssemblyVersion>') {
-          $content = $content -replace '</PropertyGroup>', "  <AssemblyVersion>$versionDot</AssemblyVersion>$([Environment]::NewLine)</PropertyGroup>"
-        } else {
-          $content = $content -replace '<AssemblyVersion>.*?</AssemblyVersion>', "<AssemblyVersion>$versionDot</AssemblyVersion>"
-        }
-        
-        if ($content -notmatch '<FileVersion>') {
-          $content = $content -replace '</PropertyGroup>', "  <FileVersion>$versionDot</FileVersion>$([Environment]::NewLine)</PropertyGroup>"
-        } else {
-          $content = $content -replace '<FileVersion>.*?</FileVersion>', "<FileVersion>$versionDot</FileVersion>"
-        }
-        
-        if ($content -notmatch '<Version>') {
-          $content = $content -replace '</PropertyGroup>', "  <Version>$versionDot</Version>$([Environment]::NewLine)</PropertyGroup>"
-        } else {
-          $content = $content -replace '<Version>.*?</Version>', "<Version>$versionDot</Version>"
-        }
-        
-        # Add WPF specific properties to fix resource handling in single file publishing
-        if ($content -notmatch '<UseWPF>') {
-          $content = $content -replace '</PropertyGroup>', "  <UseWPF>true</UseWPF>$([Environment]::NewLine)</PropertyGroup>"
-        }
-        
-        # Update theme package references if they're causing issues
-        $content = $content -replace '<PackageReference Include="Syncfusion.Themes.MaterialDark.WPF".*?/>', ''
-        $content = $content -replace '<PackageReference Include="Syncfusion.Themes.MaterialLight.WPF".*?/>', ''
-        
-        # Remove problematic System.IO.Compression reference
-        $content = $content -replace '<Analyzer Include="..\\..\\..\\..\\..\\..\\Program Files %28x86%29\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2\\System.IO.Compression.dll" />', ''
-        
-        # Update Microsoft.Windows.Compatibility to latest version to fix vulnerability
-        $content = $content -replace '<PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />', '<PackageReference Include="Microsoft.Windows.Compatibility" Version="8.0.0" />'
-        
-        # Add Octokit package for auto-updates if it doesn't exist
-        if ($content -notmatch '<PackageReference Include="Octokit"') {
-          $content = $content -replace '<PackageReference Include="Newtonsoft.Json">\s*<Version>.*?</Version>\s*</PackageReference>', '<PackageReference Include="Newtonsoft.Json">' + [Environment]::NewLine + '      <Version>13.0.1</Version>' + [Environment]::NewLine + '    </PackageReference>' + [Environment]::NewLine + '    <PackageReference Include="Octokit" Version="4.0.1" />'
-        }
-        
-        Set-Content $projFile $content
-        
-        # Also update the UpdaterUtility to hardcode the repository owner
-        $ownerValue = "${{ github.repository_owner }}"
-        $utilFile = "EQLogParser/src/util/UpdaterUtility.cs"
-        if (Test-Path $utilFile) {
-          $utilContent = Get-Content $utilFile -Raw
-          # Fix the regex pattern to not confuse PowerShell with semicolons and comment markers
-          $pattern = 'RepositoryOwner = "(.*?)"; .*?repository owner'
-          $replacement = 'RepositoryOwner = "' + $ownerValue + '"; // Use the actual repository owner'
-          $utilContent = $utilContent -replace $pattern, $replacement
-          Set-Content $utilFile $utilContent
-        }
-    
-    # Skip clean step as it's causing issues
-    
-    - name: Ensure App.xaml is properly configured for single-file publishing
-      run: |
-        $appXamlPath = "EQLogParser/App.xaml"
-        if (Test-Path $appXamlPath) {
-          Write-Host "Checking App.xaml configuration for single-file compatibility"
-          $appXaml = Get-Content $appXamlPath -Raw
-          
-          # Ensure there are no hardcoded assembly versions in the XAML
-          if ($appXaml -match 'Version=[0-9\.]+') {
-            Write-Host "Warning: Found hardcoded version reference in App.xaml. This can cause issues with single-file publishing."
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for proper versioning
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
+
+      # First exclude problematic projects before any restore operations
+      - name: Update solution to exclude WixCustom and EQLogParserInstall projects
+        run: |
+          dotnet sln EQLogParser.sln remove WixCustom/WixCustom.csproj || echo "WixCustom already removed or not found"
+          dotnet sln EQLogParser.sln remove EQLogParserInstall/EQLogParserInstall.wixproj || echo "EQLogParserInstall already removed or not found"
+
+      # Exclude theme projects that have Syncfusion.Calculate.Base dependency issues
+      - name: Update solution to exclude theme projects
+        run: |
+          dotnet sln EQLogParser.sln remove MaterialDarkCustom/Syncfusion.Themes.MaterialDarkCustom.csproj || echo "MaterialDarkCustom already removed or not found"
+          dotnet sln EQLogParser.sln remove MaterialLightCustom/Syncfusion.Themes.MaterialLightCustom.csproj || echo "MaterialLightCustom already removed or not found"
+
+      # Determine version for build and release
+      - name: Determine version for release
+        id: version
+        run: |
+          $date = Get-Date -Format "yyyy.MM.dd"
+          $buildNumber = $env:GITHUB_RUN_NUMBER
+          $version = "$date-build$buildNumber"
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "VERSION_DOT=$($date.Replace('-', '.')).$buildNumber" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      # Update the EQLogParser.csproj to fix project and runtime settings
+      - name: Update main project file to fix dependencies and runtime settings
+        run: |
+          $projFile = "EQLogParser/EQLogParser.csproj"
+          $content = Get-Content $projFile -Raw
+
+          # Remove theme project references
+          $content = $content -replace '<ProjectReference Include=".\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj" />', ''
+          $content = $content -replace '<ProjectReference Include=".\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj" />', ''
+
+          # Explicitly add RuntimeIdentifiers element if it doesn't exist
+          if ($content -notmatch '<RuntimeIdentifiers>') {
+            $replacement = '<PropertyGroup>' + [Environment]::NewLine + '    <PublishSingleFile>true</PublishSingleFile>' + [Environment]::NewLine + '    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>'
+            $content = $content -replace '<PropertyGroup>\s*<PublishSingleFile>true</PublishSingleFile>', $replacement
           }
-        } else {
-          Write-Host "Warning: App.xaml not found at expected location"
-        }
-        
-        # Set version variable
-        $versionValue = "${{ steps.version.outputs.VERSION_DOT }}"
-        $buildPropsContent = @'
-<Project>
-  <PropertyGroup>
-    <!-- Only apply these version properties to our own assemblies, not package references -->
-    <Version Condition="'$(PackageId)' == ''">$versionValue</Version>
-    <AssemblyVersion Condition="'$(PackageId)' == ''">$versionValue</AssemblyVersion>
-    <FileVersion Condition="'$(PackageId)' == ''">$versionValue</FileVersion>
-    <InformationalVersion Condition="'$(PackageId)' == ''">$versionValue</InformationalVersion>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <SelfContained>true</SelfContained>
-    <PublishSingleFile>true</PublishSingleFile>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-    <NoWarn>$(NoWarn);NU1603;NU1701</NoWarn>
-  </PropertyGroup>
-</Project>
-'@
-        Set-Content -Path Directory.Build.props -Value $buildPropsContent
-        Write-Host "Created Directory.Build.props with consistent version settings"
-    
-    - name: Clear NuGet cache and restore dependencies with specific runtime
-      run: |
-        dotnet nuget locals all --clear
-        # Add --no-dependencies to avoid version conflicts
-        dotnet restore EQLogParser/EQLogParser.csproj /p:RuntimeIdentifier=win-x64
-        
-    - name: Build Single Executable
-      run: |
-        # First, set version variables uniformly for all assemblies
-        $version="${{ steps.version.outputs.VERSION_DOT }}"
-        Write-Host "Building with version: $version"
-        
-        # Special handling for PublishSingleFile - we need to ensure consistent versioning
-        # across all assemblies, resources, and compiled XAML
-        dotnet publish EQLogParser/EQLogParser.csproj -c Release -r win-x64 --self-contained true `
-          /p:PublishSingleFile=true `
-          /p:IncludeNativeLibrariesForSelfExtract=true `
-          /p:DebugType=None `
-          /p:DebugSymbols=false `
-          /p:EnableCompressionInSingleFile=true `
-          /p:IncludeAllContentForSelfExtract=true `
-          /p:AssemblyVersion=$version `
-          /p:FileVersion=$version `
-          /p:Version=$version `
-          /p:InformationalVersion=$version `
-          /p:ProductVersion=$version `
-          -o publish
-        
-        Write-Host "Contents of publish directory (after build):"
-        Get-ChildItem -Path publish -Recurse
-      env:
-        GITHUB_REPOSITORY: ${{ github.repository }}
-        GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-        
-    - name: Rename executable
-      run: |
-        cd publish
-        Write-Host "Current directory content:"
-        Get-ChildItem -Path . -Recurse | Format-Table
-        
-        $exeFiles = Get-ChildItem -Path . -Recurse -Include *.exe
-        Write-Host "Found $($exeFiles.Count) executable files:"
-        foreach ($file in $exeFiles) {
-            Write-Host "- $($file.FullName) (Size: $([math]::Round($file.Length / 1MB, 2)) MB)"
-        }
-        
-        if (Test-Path "EQLogParser.exe") {
-          Write-Host "Found EQLogParser.exe, renaming to THJLogParser.exe"
-          Rename-Item -Path "EQLogParser.exe" -NewName "THJLogParser.exe" -Force
-          Write-Host "Renamed successfully"
-        } else {
-          Write-Host "ERROR: EQLogParser.exe not found in current directory!"
-          
-          # Look in other locations where it might be
-          $exeInOtherLocations = Get-ChildItem -Path .. -Recurse -Include EQLogParser.exe -ErrorAction SilentlyContinue
-          if ($exeInOtherLocations.Count -gt 0) {
-            Write-Host "Found EQLogParser.exe in other locations:"
-            foreach ($file in $exeInOtherLocations) {
-                Write-Host "- $($file.FullName)"
-                # Copy the first one found to current directory
-                if (-not (Test-Path "THJLogParser.exe")) {
-                    Copy-Item -Path $file.FullName -Destination "THJLogParser.exe" -Force
-                    Write-Host "Copied to THJLogParser.exe"
-                }
+
+          # Ensure consistent versioning across all version properties
+          $versionDot = "${{ steps.version.outputs.VERSION_DOT }}"
+          $content = $content -replace '<ApplicationVersion>.*?</ApplicationVersion>', "<ApplicationVersion>$versionDot</ApplicationVersion>"
+
+          # Add or update other version properties for consistency
+          if ($content -notmatch '<AssemblyVersion>') {
+            $content = $content -replace '</PropertyGroup>', "  <AssemblyVersion>$versionDot</AssemblyVersion>$([Environment]::NewLine)</PropertyGroup>"
+          } else {
+            $content = $content -replace '<AssemblyVersion>.*?</AssemblyVersion>', "<AssemblyVersion>$versionDot</AssemblyVersion>"
+          }
+
+          if ($content -notmatch '<FileVersion>') {
+            $content = $content -replace '</PropertyGroup>', "  <FileVersion>$versionDot</FileVersion>$([Environment]::NewLine)</PropertyGroup>"
+          } else {
+            $content = $content -replace '<FileVersion>.*?</FileVersion>', "<FileVersion>$versionDot</FileVersion>"
+          }
+
+          if ($content -notmatch '<Version>') {
+            $content = $content -replace '</PropertyGroup>', "  <Version>$versionDot</Version>$([Environment]::NewLine)</PropertyGroup>"
+          } else {
+            $content = $content -replace '<Version>.*?</Version>', "<Version>$versionDot</Version>"
+          }
+
+          # Add WPF specific properties to fix resource handling in single file publishing
+          if ($content -notmatch '<UseWPF>') {
+            $content = $content -replace '</PropertyGroup>', "  <UseWPF>true</UseWPF>$([Environment]::NewLine)</PropertyGroup>"
+          }
+
+          # Update theme package references if they're causing issues
+          $content = $content -replace '<PackageReference Include="Syncfusion.Themes.MaterialDark.WPF".*?/>', ''
+          $content = $content -replace '<PackageReference Include="Syncfusion.Themes.MaterialLight.WPF".*?/>', ''
+
+          # Remove problematic System.IO.Compression reference
+          $content = $content -replace '<Analyzer Include="..\\..\\..\\..\\..\\..\\Program Files %28x86%29\\Reference Assemblies\\Microsoft\\Framework\\.NETFramework\\v4.7.2\\System.IO.Compression.dll" />', ''
+
+          # Update Microsoft.Windows.Compatibility to latest version to fix vulnerability
+          $content = $content -replace '<PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />', '<PackageReference Include="Microsoft.Windows.Compatibility" Version="8.0.0" />'
+
+          # Add Octokit package for auto-updates if it doesn't exist
+          if ($content -notmatch '<PackageReference Include="Octokit"') {
+            $content = $content -replace '<PackageReference Include="Newtonsoft.Json">\s*<Version>.*?</Version>\s*</PackageReference>', '<PackageReference Include="Newtonsoft.Json">' + [Environment]::NewLine + '      <Version>13.0.1</Version>' + [Environment]::NewLine + '    </PackageReference>' + [Environment]::NewLine + '    <PackageReference Include="Octokit" Version="4.0.1" />'
+          }
+
+          Set-Content $projFile $content
+
+          # Also update the UpdaterUtility to hardcode the repository owner
+          $ownerValue = "${{ github.repository_owner }}"
+          $utilFile = "EQLogParser/src/util/UpdaterUtility.cs"
+          if (Test-Path $utilFile) {
+            $utilContent = Get-Content $utilFile -Raw
+            # Fix the regex pattern to not confuse PowerShell with semicolons and comment markers
+            $pattern = 'RepositoryOwner = "(.*?)"; .*?repository owner'
+            $replacement = 'RepositoryOwner = "' + $ownerValue + '"; // Use the actual repository owner'
+            $utilContent = $utilContent -replace $pattern, $replacement
+            Set-Content $utilFile $utilContent
+          }
+
+      # Skip clean step as it's causing issues
+
+      - name: Ensure App.xaml is properly configured for single-file publishing
+        run: |
+          $appXamlPath = "EQLogParser/App.xaml"
+          if (Test-Path $appXamlPath) {
+            Write-Host "Checking App.xaml configuration for single-file compatibility"
+            $appXaml = Get-Content $appXamlPath -Raw
+            
+            # Ensure there are no hardcoded assembly versions in the XAML
+            if ($appXaml -match 'Version=[0-9\.]+') {
+              Write-Host "Warning: Found hardcoded version reference in App.xaml. This can cause issues with single-file publishing."
             }
           } else {
-            Write-Host "No EQLogParser.exe found anywhere in the workspace"
-            exit 1
+            Write-Host "Warning: App.xaml not found at expected location"
           }
-        }
-        
-    - name: Copy data files
-      run: |
-        if (Test-Path "EQLogParser/data") {
-          Write-Host "Found data directory, copying to publish folder"
-          Copy-Item -Path "EQLogParser/data" -Destination "publish/data" -Recurse -Force
-        } else {
-          Write-Host "Warning: Data directory not found. Creating empty data directory."
-          New-Item -Path "publish/data" -ItemType Directory -Force
-        }
-        
-    - name: Verify final artifact contents
-      run: |
-        Write-Host "Final contents of publish directory:"
-        Get-ChildItem -Path publish -Recurse | Format-Table
-        
-        $exePath = "publish/THJLogParser.exe"
-        if (Test-Path -Path $exePath) {
-          Write-Host "THJLogParser.exe size: $([math]::Round((Get-Item -Path $exePath).Length / 1MB, 2)) MB"
-          
-          # Verify executable version info
-          try {
-            $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($exePath)
-            Write-Host "File Version: $($versionInfo.FileVersion)"
-            Write-Host "Product Version: $($versionInfo.ProductVersion)"
-            Write-Host "Assembly Version: $(([Reflection.AssemblyName]::GetAssemblyName($exePath)).Version)"
-          } catch {
-            Write-Host "Warning: Unable to read version info: $_"
-          }
-        } else {
-          Write-Host "WARNING: THJLogParser.exe not found in final publish directory!"
-        }
 
-    - name: Create ZIP archive of build
-      run: |
-        Compress-Archive -Path publish/* -DestinationPath THJLogParser.zip -Force
-        Write-Host "Created ZIP archive of built application"
-        
-    - name: Create GitHub Release
-      id: create_release
-      # Only run on push to master, not on PRs
-      if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        name: THJLogParser ${{ steps.version.outputs.VERSION }}
-        tag_name: v${{ steps.version.outputs.VERSION }}
-        draft: false
-        prerelease: false
-        files: |
-          THJLogParser.zip
-          publish/THJLogParser.exe
-        
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: THJLogParser
-        path: publish/
+          # Set version variable
+          $versionValue = "${{ steps.version.outputs.VERSION_DOT }}"
+          $buildPropsContent = @'
+            <Project>
+              <PropertyGroup>
+                <!-- Only apply these version properties to our own assemblies, not package references -->
+                <Version Condition="'$(PackageId)' == ''">$versionValue</Version>
+                <AssemblyVersion Condition="'$(PackageId)' == ''">$versionValue</AssemblyVersion>
+                <FileVersion Condition="'$(PackageId)' == ''">$versionValue</FileVersion>
+                <InformationalVersion Condition="'$(PackageId)' == ''">$versionValue</InformationalVersion>
+                <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+                <SelfContained>true</SelfContained>
+                <PublishSingleFile>true</PublishSingleFile>
+                <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+                <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+                <NoWarn>$(NoWarn);NU1603;NU1701</NoWarn>
+              </PropertyGroup>
+            </Project>
+          '@
+          Set-Content -Path Directory.Build.props -Value $buildPropsContent
+          Write-Host "Created Directory.Build.props with consistent version settings"
+
+      - name: Clear NuGet cache and restore dependencies with specific runtime
+        run: |
+          dotnet nuget locals all --clear
+          # Add --no-dependencies to avoid version conflicts
+          dotnet restore EQLogParser/EQLogParser.csproj /p:RuntimeIdentifier=win-x64
+
+      - name: Build Single Executable
+        run: |
+          # First, set version variables uniformly for all assemblies
+          $version="${{ steps.version.outputs.VERSION_DOT }}"
+          Write-Host "Building with version: $version"
+
+          # Special handling for PublishSingleFile - we need to ensure consistent versioning
+          # across all assemblies, resources, and compiled XAML
+          dotnet publish EQLogParser/EQLogParser.csproj -c Release -r win-x64 --self-contained true `
+            /p:PublishSingleFile=true `
+            /p:IncludeNativeLibrariesForSelfExtract=true `
+            /p:DebugType=None `
+            /p:DebugSymbols=false `
+            /p:EnableCompressionInSingleFile=true `
+            /p:IncludeAllContentForSelfExtract=true `
+            /p:AssemblyVersion=$version `
+            /p:FileVersion=$version `
+            /p:Version=$version `
+            /p:InformationalVersion=$version `
+            /p:ProductVersion=$version `
+            -o publish
+
+          Write-Host "Contents of publish directory (after build):"
+          Get-ChildItem -Path publish -Recurse
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+
+      - name: Rename executable
+        run: |
+          cd publish
+          Write-Host "Current directory content:"
+          Get-ChildItem -Path . -Recurse | Format-Table
+
+          $exeFiles = Get-ChildItem -Path . -Recurse -Include *.exe
+          Write-Host "Found $($exeFiles.Count) executable files:"
+          foreach ($file in $exeFiles) {
+              Write-Host "- $($file.FullName) (Size: $([math]::Round($file.Length / 1MB, 2)) MB)"
+          }
+
+          if (Test-Path "EQLogParser.exe") {
+            Write-Host "Found EQLogParser.exe, renaming to THJLogParser.exe"
+            Rename-Item -Path "EQLogParser.exe" -NewName "THJLogParser.exe" -Force
+            Write-Host "Renamed successfully"
+          } else {
+            Write-Host "ERROR: EQLogParser.exe not found in current directory!"
+            
+            # Look in other locations where it might be
+            $exeInOtherLocations = Get-ChildItem -Path .. -Recurse -Include EQLogParser.exe -ErrorAction SilentlyContinue
+            if ($exeInOtherLocations.Count -gt 0) {
+              Write-Host "Found EQLogParser.exe in other locations:"
+              foreach ($file in $exeInOtherLocations) {
+                  Write-Host "- $($file.FullName)"
+                  # Copy the first one found to current directory
+                  if (-not (Test-Path "THJLogParser.exe")) {
+                      Copy-Item -Path $file.FullName -Destination "THJLogParser.exe" -Force
+                      Write-Host "Copied to THJLogParser.exe"
+                  }
+              }
+            } else {
+              Write-Host "No EQLogParser.exe found anywhere in the workspace"
+              exit 1
+            }
+          }
+
+      - name: Copy data files
+        run: |
+          if (Test-Path "EQLogParser/data") {
+            Write-Host "Found data directory, copying to publish folder"
+            Copy-Item -Path "EQLogParser/data" -Destination "publish/data" -Recurse -Force
+          } else {
+            Write-Host "Warning: Data directory not found. Creating empty data directory."
+            New-Item -Path "publish/data" -ItemType Directory -Force
+          }
+
+      - name: Verify final artifact contents
+        run: |
+          Write-Host "Final contents of publish directory:"
+          Get-ChildItem -Path publish -Recurse | Format-Table
+
+          $exePath = "publish/THJLogParser.exe"
+          if (Test-Path -Path $exePath) {
+            Write-Host "THJLogParser.exe size: $([math]::Round((Get-Item -Path $exePath).Length / 1MB, 2)) MB"
+            
+            # Verify executable version info
+            try {
+              $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($exePath)
+              Write-Host "File Version: $($versionInfo.FileVersion)"
+              Write-Host "Product Version: $($versionInfo.ProductVersion)"
+              Write-Host "Assembly Version: $(([Reflection.AssemblyName]::GetAssemblyName($exePath)).Version)"
+            } catch {
+              Write-Host "Warning: Unable to read version info: $_"
+            }
+          } else {
+            Write-Host "WARNING: THJLogParser.exe not found in final publish directory!"
+          }
+
+      - name: Create ZIP archive of build
+        run: |
+          Compress-Archive -Path publish/* -DestinationPath THJLogParser.zip -Force
+          Write-Host "Created ZIP archive of built application"
+
+      - name: Create GitHub Release
+        id: create_release
+        # Only run on push to master, not on PRs
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: THJLogParser ${{ steps.version.outputs.VERSION }}
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+          files: |
+            THJLogParser.zip
+            publish/THJLogParser.exe
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: THJLogParser
+          path: publish/
