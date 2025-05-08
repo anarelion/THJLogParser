@@ -10,25 +10,17 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
 
+      - name: Install dependencies
+        run: dotnet restore
+
       - name: Test
-        run: dotnet build
-        
-      - name: Build with Wix Toolset
-        uses: utilitywarehouse/ghaction-wix@v1
-        with:
-          name: EQLogParser
-          sourceFiles: EQLogParserInstall/Product.wxs
-          outputDir: msi
-          architecture: x64
-          extensions: WixUtilExtension
+        run: dotnet test
+
+      - name: Build MSI
+        run: dotnet build --configuration Release EQLogParserInstall\EQLogParserInstall.wixproj -o msi
           
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        uses: actions/upload-artifact@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+          name: THJEQLogParser
+          path: msi\en-us\EQLogParser.msi
