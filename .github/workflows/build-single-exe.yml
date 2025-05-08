@@ -139,22 +139,22 @@ jobs:
           # Set version variable
           $versionValue = "${{ steps.version.outputs.VERSION_DOT }}"
           $buildPropsContent = @"
-<Project>
-  <PropertyGroup>
-    <!-- Only apply these version properties to our own assemblies, not package references -->
-    <Version Condition="'\`$(PackageId)' == ''">$versionValue</Version>
-    <AssemblyVersion Condition="'\`$(PackageId)' == ''">$versionValue</AssemblyVersion>
-    <FileVersion Condition="'\`$(PackageId)' == ''">$versionValue</FileVersion>
-    <InformationalVersion Condition="'\`$(PackageId)' == ''">$versionValue</InformationalVersion>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <SelfContained>true</SelfContained>
-    <PublishSingleFile>true</PublishSingleFile>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-    <NoWarn>\`$(NoWarn);NU1603;NU1701</NoWarn>
-  </PropertyGroup>
-</Project>
-"@
+            <Project>
+              <PropertyGroup>
+                <!-- Only apply these version properties to our own assemblies, not package references -->
+                <Version Condition="'\`$(PackageId)' == ''">$versionValue</Version>
+                <AssemblyVersion Condition="'\`$(PackageId)' == ''">$versionValue</AssemblyVersion>
+                <FileVersion Condition="'\`$(PackageId)' == ''">$versionValue</FileVersion>
+                <InformationalVersion Condition="'\`$(PackageId)' == ''">$versionValue</InformationalVersion>
+                <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+                <SelfContained>true</SelfContained>
+                <PublishSingleFile>true</PublishSingleFile>
+                <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+                <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+                <NoWarn>\`$(NoWarn);NU1603;NU1701</NoWarn>
+              </PropertyGroup>
+            </Project>
+          "@
           Set-Content -Path Directory.Build.props -Value $buildPropsContent
           Write-Host "Created Directory.Build.props with consistent version settings"
 
