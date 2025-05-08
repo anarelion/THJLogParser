@@ -1,38 +1,42 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\EQLogParser.csproj": {}
+    "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\EQLogParser\\EQLogParser.csproj": {}
   },
   "projects": {
-    "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\EQLogParser.csproj": {
+    "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\EQLogParser\\EQLogParser.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\EQLogParser.csproj",
+        "projectUniqueName": "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\EQLogParser\\EQLogParser.csproj",
         "projectName": "EQLogParser",
-        "projectPath": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\EQLogParser.csproj",
-        "packagesPath": "C:\\Users\\jlabo\\.nuget\\packages\\",
-        "outputPath": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\EQLogParser\\obj\\",
+        "projectPath": "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\EQLogParser\\EQLogParser.csproj",
+        "packagesPath": "C:\\Users\\Brandon\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\EQLogParser\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\jlabo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Brandon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net6.0-windows10.0.17763.0"
+          "net8.0-windows10.0.17763.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net6.0-windows10.0.17763": {
-            "targetAlias": "net6.0-windows10.0.17763.0",
+          "net8.0-windows10.0.17763": {
+            "targetAlias": "net8.0-windows10.0.17763.0",
             "projectReferences": {
-              "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj": {
-                "projectPath": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj"
+              "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj": {
+                "projectPath": "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj"
               },
-              "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj": {
-                "projectPath": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj"
+              "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj": {
+                "projectPath": "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj"
               }
             }
           }
@@ -47,55 +51,65 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
-        "net6.0-windows10.0.17763": {
-          "targetAlias": "net6.0-windows10.0.17763.0",
+        "net8.0-windows10.0.17763": {
+          "targetAlias": "net8.0-windows10.0.17763.0",
           "dependencies": {
             "DotLiquid": {
               "target": "Package",
-              "version": "[2.2.656, )"
+              "version": "[2.3.197, )"
             },
             "FontAwesome5": {
               "target": "Package",
-              "version": "[2.1.6, )"
+              "version": "[2.1.11, )"
             },
             "Microsoft.CSharp": {
               "target": "Package",
               "version": "[4.7.0, )"
             },
+            "Microsoft.NET.ILLink.Tasks": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.13, )",
+              "autoReferenced": true
+            },
             "Microsoft.Windows.Compatibility": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[9.0.4, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
-              "version": "[13.0.1, )"
+              "version": "[13.0.3, )"
+            },
+            "Octokit": {
+              "target": "Package",
+              "version": "[14.0.0, )"
             },
             "Syncfusion.SfChart.WPF": {
               "target": "Package",
-              "version": "[20.2.0.40, )"
+              "version": "[29.1.41, )"
             },
             "Syncfusion.SfSkinManager.WPF": {
               "target": "Package",
-              "version": "[20.2.0.40, )"
+              "version": "[29.1.41, )"
             },
             "Syncfusion.Shared.Base": {
               "target": "Package",
-              "version": "[20.2.0.45, )"
+              "version": "[29.1.41, )"
             },
             "Syncfusion.Themes.MaterialDark.WPF": {
               "target": "Package",
-              "version": "[20.2.0.40, )"
+              "version": "[29.1.41, )"
             },
             "Syncfusion.Themes.MaterialLight.WPF": {
               "target": "Package",
-              "version": "[20.2.0.40, )"
+              "version": "[29.1.41, )"
             },
             "Syncfusion.Tools.WPF": {
               "target": "Package",
-              "version": "[20.2.0.40, )"
+              "version": "[29.1.41, )"
             },
             "System.ComponentModel.Annotations": {
               "target": "Package",
@@ -103,7 +117,7 @@
             },
             "log4net": {
               "target": "Package",
-              "version": "[2.0.14, )"
+              "version": "[3.0.4, )"
             }
           },
           "imports": [
@@ -119,24 +133,20 @@
           "warn": true,
           "downloadDependencies": [
             {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[6.0.36, 6.0.36]"
+              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+              "version": "[8.0.13, 8.0.13]"
             },
             {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[6.0.36, 6.0.36]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[6.0.36, 6.0.36]"
+              "name": "Microsoft.NETCore.App.Runtime.win-x64",
+              "version": "[8.0.13, 8.0.13]"
             },
             {
               "name": "Microsoft.Windows.SDK.NET.Ref",
-              "version": "[10.0.17763.52, 10.0.17763.52]"
+              "version": "[10.0.17763.57, 10.0.17763.57]"
             },
             {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[6.0.36, 6.0.36]"
+              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+              "version": "[8.0.13, 8.0.13]"
             }
           ],
           "frameworkReferences": {
@@ -150,21 +160,30 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win-x64": {
+          "#import": []
         }
       }
     },
-    "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj": {
+    "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj",
+        "projectUniqueName": "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj",
         "projectName": "Syncfusion.Themes.MaterialDarkCustom.WPF",
-        "projectPath": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj",
-        "packagesPath": "C:\\Users\\jlabo\\.nuget\\packages\\",
-        "outputPath": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialDarkCustom\\obj\\",
+        "projectPath": "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialDarkCustom\\Syncfusion.Themes.MaterialDarkCustom.csproj",
+        "packagesPath": "C:\\Users\\Brandon\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialDarkCustom\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\jlabo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Brandon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -190,7 +209,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net6.0-windows10.0.17763": {
@@ -331,7 +350,7 @@
             },
             {
               "name": "Microsoft.Windows.SDK.NET.Ref",
-              "version": "[10.0.17763.52, 10.0.17763.52]"
+              "version": "[10.0.17763.55, 10.0.17763.55]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Ref",
@@ -349,21 +368,25 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj": {
+    "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj",
+        "projectUniqueName": "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj",
         "projectName": "Syncfusion.Themes.MaterialLightCustom.WPF",
-        "projectPath": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj",
-        "packagesPath": "C:\\Users\\jlabo\\.nuget\\packages\\",
-        "outputPath": "C:\\Mine\\Code\\git\\EQLogParser-THJ\\MaterialLightCustom\\obj\\",
+        "projectPath": "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialLightCustom\\Syncfusion.Themes.MaterialLightCustom.csproj",
+        "packagesPath": "C:\\Users\\Brandon\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Brandon\\Source\\Repos\\THJLogParser\\MaterialLightCustom\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\jlabo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Brandon\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -389,7 +412,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net5.0-windows7.0": {
@@ -565,7 +588,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200\\RuntimeIdentifierGraph.json"
         }
       }
     }

@@ -5,7 +5,7 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-    <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
     <OutputType>WinExe</OutputType>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <MapFileExtensions>true</MapFileExtensions>
@@ -157,26 +157,26 @@
     <None Remove="..\Dependencies\Hardcodet.Wpf.TaskbarNotification.dll" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotLiquid" Version="2.2.656" />
+    <PackageReference Include="DotLiquid" Version="2.3.197" />
     <PackageReference Include="FontAwesome5">
-      <Version>2.1.6</Version>
+      <Version>2.1.11</Version>
     </PackageReference>
     <PackageReference Include="log4net">
-      <Version>2.0.14</Version>
+      <Version>3.0.4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.1</Version>
+      <Version>13.0.3</Version>
     </PackageReference>
-    <PackageReference Include="Octokit" Version="4.0.1" />
-    <PackageReference Include="Syncfusion.SfChart.WPF" Version="20.2.0.40" />
-    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="20.2.0.40" />
-    <PackageReference Include="Syncfusion.Shared.Base" Version="20.2.0.45" />
-    <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF" Version="20.2.0.40" />
-    <PackageReference Include="Syncfusion.Themes.MaterialLight.WPF" Version="20.2.0.40" />
-    <PackageReference Include="Syncfusion.Tools.WPF" Version="20.2.0.40" />
+    <PackageReference Include="Octokit" Version="14.0.0" />
+    <PackageReference Include="Syncfusion.SfChart.WPF" Version="29.1.41" />
+    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="29.1.41" />
+    <PackageReference Include="Syncfusion.Shared.Base" Version="29.1.41" />
+    <PackageReference Include="Syncfusion.Themes.MaterialDark.WPF" Version="29.1.41" />
+    <PackageReference Include="Syncfusion.Themes.MaterialLight.WPF" Version="29.1.41" />
+    <PackageReference Include="Syncfusion.Tools.WPF" Version="29.1.41" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="9.0.4" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\..\..\..\..\Program Files %28x86%29\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.IO.Compression.dll" />
